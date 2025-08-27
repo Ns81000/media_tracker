@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#111111">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Marvel's Defenders Saga Timeline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    screens: {
+                        'xxs': '360px',
+                        'xs': '480px',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111;
+            color: #f0f0f0;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior: none;
+            touch-action: manipulation;
+        }
+        /* Custom checkbox style */
+        .custom-checkbox {
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1em;
+            height: 1em;
+            border: 0.1em solid currentColor;
+            border-radius: 50%;
+            transform: translateY(-0.075em);
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .custom-checkbox::before {
+            content: "";
+            width: 0.8em;
+            height: 0.8em;
+            border-radius: 50%;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #e63946;
+        }
+
+        .custom-checkbox:checked::before {
+            transform: scale(1);
+        }
+        .custom-checkbox:checked {
+            background-color: rgba(230, 57, 70, 0.2);
+            border-color: #e63946;
+        }
+        .custom-checkbox:focus {
+            outline: max(2px, 0.15em) solid #e63946;
+            outline-offset: max(2px, 0.15em);
+        }
+
+        /* Animation for grid items */
+        .timeline-item {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+
+        .timeline-item.is-visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* Watched state styling */
+        .watched .series-card {
+            opacity: 0.5;
+            border-left-color: #e63946;
+        }
+        .watched .series-title {
+            text-decoration: line-through;
+            text-decoration-color: #e63946;
+            text-decoration-thickness: 2px;
+        }
+        
+        /* Image styling */
+        .series-card img {
+            transition: transform 0.3s ease, filter 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 0.6s forwards;
+        }
+        
+        .watched .series-card img {
+            filter: grayscale(80%) brightness(0.7);
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* Compact view styling */
+        .compact-view {
+            scroll-behavior: smooth;
+        }
+        
+        /* Extra responsive styles */
+        @media (max-width: 359px) {
+            .series-card {
+                min-height: 120px;
+            }
+        }
+        
+        /* Extra small text */
+        .text-2xs {
+            font-size: 0.65rem;
+            line-height: 1rem;
+        }
+        
+        /* Touch optimization for mobile */
+        @media (max-width: 767px) {
+            .custom-checkbox {
+                width: 1.1em;
+                height: 1.1em;
+            }
+            
+            label[for^="checkbox-"] {
+                padding: 0.25rem 0;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto px-2 xs:px-4 py-3 md:py-6">
+        <header class="text-center mb-3 md:mb-6">
+            <h1 class="text-xl xs:text-2xl md:text-4xl font-extrabold tracking-tight text-white">
+                The Defenders Saga
+            </h1>
+            <p class="mt-1 md:mt-2 text-xs xs:text-sm md:text-base text-gray-400 max-w-3xl mx-auto">
+                Marvel Netflix Series Watch Tracker
+            </p>
+            <!-- Adding progress save/load controls -->
+            <div class="flex justify-center items-center mt-2 md:mt-3 space-x-2">
+                <button id="export-progress" class="bg-red-800 hover:bg-red-700 text-white text-xs md:text-sm py-1 px-2 md:px-3 rounded">
+                    Save Progress
+                </button>
+                <button id="import-progress" class="bg-gray-700 hover:bg-gray-600 text-white text-xs md:text-sm py-1 px-2 md:px-3 rounded">
+                    Load Progress
+                </button>
+                <input type="file" id="import-file" accept=".json" class="hidden">
+            </div>
+            <div class="mt-4">
+    <a href="index.html" class="inline-block bg-gray-800 hover:bg-gray-700 text-blue-300 font-semibold py-2 px-4 rounded-lg transition-colors duration-300">
+        &larr; Back to Hub
+    </a>
+</div>
+        </header>
+
+        <!-- Series Grid Container -->
+        <div id="timeline-container" class="grid grid-cols-1 xxs:grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 max-w-7xl mx-auto">
+            <!-- Cards will be inserted here -->
+        </div>
+        
+    </div>
+
+    <!-- Status notification -->
+    <div id="status-notification" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 text-sm z-50 flex items-center space-x-2 pointer-events-none">
+        <!-- Status message will be inserted here by JavaScript -->
+    </div>
+    
+    <!-- Offline notification container (for persistent offline state) -->
+    <div id="offline-indicator" class="fixed top-2 right-2 bg-red-800 text-white py-1 px-3 rounded-lg text-xs hidden flex items-center">
+        <span class="mr-1">●</span>
+        <span>Offline</span>
+    </div>
+
+    <script>
+        const seriesData = [
+            { title: "Daredevil", season: 1, date: "April 10, 2015" },
+            { title: "Jessica Jones", season: 1, date: "November 20, 2015" },
+            { title: "Daredevil", season: 2, date: "March 18, 2016" },
+            { title: "Luke Cage", season: 1, date: "September 30, 2016" },
+            { title: "Iron Fist", season: 1, date: "March 17, 2017" },
+            { title: "The Defenders", season: 1, date: "August 18, 2017" },
+            { title: "The Punisher", season: 1, date: "November 17, 2017" },
+            { title: "Jessica Jones", season: 2, date: "March 8, 2018" },
+            { title: "Luke Cage", season: 2, date: "June 22, 2018" },
+            { title: "Iron Fist", season: 2, date: "September 7, 2018" },
+            { title: "Daredevil", season: 3, date: "October 19, 2018" },
+            { title: "The Punisher", season: 2, date: "January 18, 2019" },
+            { title: "Jessica Jones", season: 3, date: "June 14, 2019" },
+        ];
+
+        const timelineContainer = document.getElementById('timeline-container');
+        let watchedState = {};
+        let db;
+
+        // Check if IndexedDB is supported
+        function isIndexedDBAvailable() {
+            return 'indexedDB' in window && window.indexedDB !== null;
+        }
+        
+        // Initialize IndexedDB
+        function initDatabase() {
+            return new Promise((resolve, reject) => {
+                // Check if IndexedDB is available
+                if (!isIndexedDBAvailable()) {
+                    console.warn("IndexedDB is not available in this browser");
+                    reject("IndexedDB not available");
+                    return;
+                }
+                
+                try {
+                    const request = window.indexedDB.open("DefendersSagaDB", 1);
+                    
+                    request.onerror = (event) => {
+                        console.error("IndexedDB error:", event.target.errorCode);
+                        reject("Could not open IndexedDB");
+                        // Fall back to localStorage if IndexedDB fails
+                        loadStateFromLocalStorage();
+                        showNotification('Using backup storage system', 'info');
+                    };
+                    
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains("watchedShows")) {
+                            db.createObjectStore("watchedShows");
+                        }
+                    };
+                    
+                    request.onsuccess = (event) => {
+                        db = event.target.result;
+                        
+                        // Listen for DB errors
+                        db.onerror = (event) => {
+                            console.error("Database error:", event.target.errorCode);
+                            showNotification('Storage error - Your progress may not be saved correctly', 'error');
+                        };
+                        
+                        resolve(db);
+                        // Once DB is ready, load data
+                        loadStateFromDB();
+                        showNotification('Watch tracker loaded successfully', 'success');
+                    };
+                    
+                    // Handle database blocked or deleted
+                    request.onblocked = () => {
+                        console.warn("Database was blocked");
+                        reject("Database blocked");
+                    };
+                    
+                    request.onversionchange = () => {
+                        if (db) {
+                            db.close();
+                            showNotification('Database updated - Please refresh', 'info');
+                        }
+                    };
+                } catch (e) {
+                    console.error("Exception during database initialization:", e);
+                    reject(e);
+                    loadStateFromLocalStorage();
+                }
+            });
+        }
+
+        // Save state to IndexedDB
+        function saveStateToDB() {
+            // Always save to localStorage as backup regardless of IndexedDB status
+            saveStateToLocalStorage();
+            
+            if (!db || !isIndexedDBAvailable()) {
+                return; // Already saved to localStorage above
+            }
+            
+            try {
+                // Add timestamp to track last save
+                const dataToSave = {
+                    ...watchedState,
+                    _lastSaved: new Date().toISOString()
+                };
+                
+                // Validate data before saving
+                if (typeof dataToSave !== 'object') {
+                    throw new Error('Invalid data format for saving');
+                }
+                
+                const transaction = db.transaction(["watchedShows"], "readwrite");
+                const store = transaction.objectStore("watchedShows");
+                
+                // Store data with a fixed key
+                const request = store.put(dataToSave, "watchedState");
+                
+                request.onsuccess = () => {
+                    // Data saved successfully
+                    console.log("Data saved to IndexedDB at", new Date().toLocaleTimeString());
+                };
+                
+                transaction.oncomplete = () => {
+                    // Transaction completed successfully
+                };
+                
+                transaction.onerror = (event) => {
+                    console.error("Error saving to IndexedDB:", event);
+                };
+                
+                // Add extra error handling for the request
+                request.onerror = (event) => {
+                    console.error("Request error when saving:", event);
+                };
+                
+            } catch (e) {
+                console.error("Error in saveStateToDB:", e);
+            }
+        }
+
+        // Load state from IndexedDB
+        function loadStateFromDB() {
+            if (!db || !isIndexedDBAvailable()) {
+                // Fall back to localStorage if DB isn't available
+                loadStateFromLocalStorage();
+                return;
+            }
+            
+            try {
+                const transaction = db.transaction(["watchedShows"], "readonly");
+                const store = transaction.objectStore("watchedShows");
+                const request = store.get("watchedState");
+                
+                request.onsuccess = (event) => {
+                    if (request.result) {
+                        // Process the data - remove metadata properties
+                        const loadedData = request.result;
+                        
+                        // Remove any internal properties that might have been saved
+                        if (loadedData._lastSaved) {
+                            console.log("Last saved:", new Date(loadedData._lastSaved).toLocaleString());
+                            delete loadedData._lastSaved;
+                        }
+                        
+                        // Clean and validate the data
+                        const validatedData = {};
+                        Object.keys(loadedData).forEach(key => {
+                            // Only keep boolean values
+                            if (typeof loadedData[key] === 'boolean') {
+                                validatedData[key] = loadedData[key];
+                            }
+                        });
+                        
+                        watchedState = validatedData;
+                        
+                        // Update UI with loaded data
+                        renderTimeline();
+                        setupIntersectionObserver();
+                        
+                        // Also update localStorage for backup purposes
+                        saveStateToLocalStorage();
+                    } else {
+                        console.log("No data found in IndexedDB, trying localStorage");
+                        // If no data in IndexedDB, try localStorage
+                        loadStateFromLocalStorage();
+                    }
+                };
+                
+                request.onerror = (event) => {
+                    console.error("Error loading from IndexedDB:", event);
+                    // Fall back to localStorage
+                    loadStateFromLocalStorage();
+                };
+                
+                transaction.onerror = (event) => {
+                    console.error("Transaction error when loading:", event);
+                    loadStateFromLocalStorage();
+                };
+            } catch (e) {
+                console.error("Error in loadStateFromDB:", e);
+                // Fall back to localStorage
+                loadStateFromLocalStorage();
+            }
+        }
+
+        // Load saved state from localStorage (fallback)
+        function loadStateFromLocalStorage() {
+            try {
+                const savedState = localStorage.getItem('marvelTimelineWatched');
+                if (savedState) {
+                    watchedState = JSON.parse(savedState);
+                    renderTimeline();
+                    setupIntersectionObserver();
+                }
+            } catch (e) {
+                console.error("Could not load saved state from localStorage:", e);
+                watchedState = {};
+                renderTimeline();
+                setupIntersectionObserver();
+            }
+        }
+
+        // Save state to localStorage (fallback/backup)
+        function saveStateToLocalStorage() {
+            try {
+                localStorage.setItem('marvelTimelineWatched', JSON.stringify(watchedState));
+            } catch (e) {
+                console.error("Could not save state to localStorage:", e);
+            }
+        }
+
+        // Create and append series items in a grid
+        function renderTimeline() {
+            // Clear container first
+            timelineContainer.innerHTML = '';
+            
+            seriesData.forEach((series, index) => {
+                const isWatched = watchedState[`${series.title}-${series.season}`] || false;
+                const imagePath = `images/${series.title} - Season ${series.season}.png`;
+                
+                const seriesItem = document.createElement('div');
+                seriesItem.className = `timeline-item ${isWatched ? 'watched' : ''}`;
+                seriesItem.dataset.id = `${series.title}-${series.season}`;
+
+                seriesItem.innerHTML = `
+                    <div class="series-card h-full bg-black bg-opacity-30 backdrop-blur-md rounded-lg shadow-lg border-l-2 border-gray-700 transition-all duration-300 hover:scale-105 hover:shadow-red-500/20 overflow-hidden flex flex-col">
+                        <div class="overflow-hidden">
+                            <img src="${imagePath}" alt="${series.title} Season ${series.season}" class="w-full h-auto min-h-[60px] max-h-[100px] sm:max-h-[120px] object-cover transition-transform duration-500 hover:scale-110" onerror="this.onerror=null; this.style.display='none';">
+                        </div>
+                        <div class="p-2 flex-grow flex flex-col">
+                            <div class="mb-1">
+                                <h3 class="series-title text-xs xs:text-sm font-bold text-white leading-tight transition-all duration-300 truncate" title="${series.title} - Season ${series.season}">${series.title} - S${series.season}</h3>
+                                <p class="text-2xs xs:text-xs font-medium text-red-400 truncate" title="${series.date}">${series.date}</p>
+                            </div>
+                            <div class="mt-auto flex items-center justify-between">
+                                <label for="checkbox-${index}" class="text-2xs xs:text-xs text-gray-300 cursor-pointer">Watched</label>
+                                <input type="checkbox" id="checkbox-${index}" class="custom-checkbox" ${isWatched ? 'checked' : ''}>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                timelineContainer.appendChild(seriesItem);
+            });
+        }
+
+        // Handle checkbox clicks
+        function setupEventListeners() {
+            timelineContainer.addEventListener('change', (e) => {
+                if (e.target.type === 'checkbox') {
+                    const timelineItem = e.target.closest('.timeline-item');
+                    const id = timelineItem.dataset.id;
+                    if (e.target.checked) {
+                        timelineItem.classList.add('watched');
+                        watchedState[id] = true;
+                    } else {
+                        timelineItem.classList.remove('watched');
+                        watchedState[id] = false;
+                    }
+                    // Save to IndexedDB (with localStorage fallback)
+                    saveStateToDB();
+                }
+            });
+        }
+
+        // Intersection Observer for animations
+        function setupIntersectionObserver() {
+            const items = document.querySelectorAll('.timeline-item');
+            const isMobile = window.innerWidth < 768;
+            
+            // Use faster animations on mobile
+            const delay = isMobile ? 20 : 50;
+            const threshold = isMobile ? 0.01 : 0.05;
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.classList.add('is-visible');
+                        }, delay * Math.min(Array.from(items).indexOf(entry.target) % 8, 5));
+                    }
+                });
+            }, { threshold: threshold, rootMargin: "80px" });
+
+            items.forEach(item => {
+                observer.observe(item);
+            });
+            
+            // Add window resize listener to adjust for orientation changes
+            window.addEventListener('resize', () => {
+                // Force re-layout for better responsiveness during resize
+                document.body.style.opacity = '0.99';
+                setTimeout(() => {
+                    document.body.style.opacity = '1';
+                }, 10);
+            });
+        }
+
+        // Adjust for screen size and orientation
+        function handleResponsiveLayout() {
+            const container = document.getElementById('timeline-container');
+            
+            // Update grid based on screen width
+            if (window.innerWidth < 360) {
+                container.classList.remove('grid-cols-2', 'grid-cols-3', 'grid-cols-4', 'grid-cols-5', 'grid-cols-6');
+                container.classList.add('grid-cols-1');
+            }
+        }
+        
+        // Export progress as JSON file (backup option)
+        function exportProgress() {
+            try {
+                // Ensure we have the latest data from IndexedDB
+                if (db && isIndexedDBAvailable()) {
+                    try {
+                        const transaction = db.transaction(["watchedShows"], "readonly");
+                        const store = transaction.objectStore("watchedShows");
+                        const request = store.get("watchedState");
+                        
+                        request.onsuccess = (event) => {
+                            if (request.result) {
+                                // Use the most recent data from IndexedDB
+                                const dbData = request.result;
+                                // Remove metadata
+                                if (dbData._lastSaved) {
+                                    delete dbData._lastSaved;
+                                }
+                                
+                                // Proceed with export using the latest data
+                                completeExport(dbData);
+                            } else {
+                                // If no data in IndexedDB, use current state
+                                completeExport(watchedState);
+                            }
+                        };
+                        
+                        request.onerror = (event) => {
+                            // If error reading from DB, fall back to current state
+                            console.error("Error reading data for export:", event);
+                            completeExport(watchedState);
+                        };
+                    } catch (e) {
+                        console.error("Error accessing IndexedDB for export:", e);
+                        completeExport(watchedState);
+                    }
+                } else {
+                    // No IndexedDB, use current state
+                    completeExport(watchedState);
+                }
+            } catch (e) {
+                console.error('Error starting export process:', e);
+                showNotification('Failed to save backup. Please try again.', 'error');
+            }
+        }
+        
+        // Helper function to complete the export process
+        function completeExport(dataToExport) {
+            try {
+                // Create data to export (include metadata for version control)
+                const exportData = {
+                    appName: "Marvel Defenders Saga Tracker",
+                    version: "1.1",
+                    exportDate: new Date().toISOString(),
+                    watchedData: dataToExport
+                };
+                
+                // Convert to JSON string
+                const jsonData = JSON.stringify(exportData, null, 2);
+                
+                // Create a blob and download link
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                // Create download link and trigger download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `defenders-saga-progress-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 0);
+                
+                showNotification('Backup saved successfully!', 'success');
+            } catch (e) {
+                console.error('Error completing export:', e);
+                showNotification('Failed to save backup. Please try again.', 'error');
+            }
+        }
+        
+        // Import progress from a file
+        function importProgress() {
+            const fileInput = document.getElementById('import-file');
+            fileInput.click();
+            
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // Show that we're processing the import
+                showNotification('Loading backup file...', 'info');
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        // Validate imported data structure
+                        if (!importedData.watchedData || typeof importedData.watchedData !== 'object') {
+                            throw new Error('Invalid data format');
+                        }
+                        
+                        // Clean and validate the data
+                        const cleanData = {};
+                        let validItemCount = 0;
+                        
+                        // Process only boolean values and only for series that exist
+                        Object.keys(importedData.watchedData).forEach(key => {
+                            const value = importedData.watchedData[key];
+                            if (typeof value === 'boolean') {
+                                // Check if this is a valid series key (title-season)
+                                const keyParts = key.split('-');
+                                if (keyParts.length === 2) {
+                                    const title = keyParts[0];
+                                    const season = parseInt(keyParts[1]);
+                                    
+                                    // Check if this series exists in our current data
+                                    const seriesExists = seriesData.some(s => 
+                                        s.title === title && s.season === season
+                                    );
+                                    
+                                    if (seriesExists) {
+                                        cleanData[key] = value;
+                                        validItemCount++;
+                                    }
+                                }
+                            }
+                        });
+                        
+                        if (validItemCount === 0) {
+                            throw new Error('No valid watch data found');
+                        }
+                        
+                        // Update the watched state
+                        watchedState = cleanData;
+                        
+                        // Save to both storage systems
+                        saveStateToDB();
+                        
+                        // Clear the container and re-render
+                        timelineContainer.innerHTML = '';
+                        renderTimeline();
+                        setupIntersectionObserver();
+                        
+                        showNotification(`Backup loaded successfully! (${validItemCount} items)`, 'success');
+                    } catch (e) {
+                        console.error('Error importing progress:', e);
+                        showNotification('Failed to load backup. The file may be corrupted or invalid.', 'error');
+                    }
+                    
+                    // Reset file input
+                    fileInput.value = '';
+                };
+                
+                reader.onerror = function() {
+                    showNotification('Error reading the file. Please try again.', 'error');
+                    fileInput.value = '';
+                };
+                
+                reader.readAsText(file);
+            };
+        }
+        
+        // Setup export/import button event listeners
+        function setupProgressControls() {
+            document.getElementById('export-progress').addEventListener('click', exportProgress);
+            document.getElementById('import-progress').addEventListener('click', importProgress);
+        }
+        
+        // Show status notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('status-notification');
+            
+            // Clear any existing timeout
+            if (notification.hideTimeout) {
+                clearTimeout(notification.hideTimeout);
+            }
+            
+            // Set message and styling based on type
+            notification.innerHTML = '';  // Clear any previous content
+            
+            // Create icon based on notification type
+            let icon = '';
+            if (type === 'error') {
+                icon = '❌ ';
+            } else if (type === 'success') {
+                icon = '✅ ';
+            } else if (type === 'info') {
+                icon = 'ℹ️ ';
+            }
+            
+            // Add icon and message
+            const iconSpan = document.createElement('span');
+            iconSpan.textContent = icon;
+            notification.appendChild(iconSpan);
+            
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = message;
+            notification.appendChild(messageSpan);
+            
+            // Set background color
+            notification.classList.remove('bg-gray-800', 'bg-red-800', 'bg-green-800', 'bg-blue-800');
+            
+            if (type === 'error') {
+                notification.classList.add('bg-red-800');
+            } else if (type === 'success') {
+                notification.classList.add('bg-green-800');
+            } else if (type === 'info') {
+                notification.classList.add('bg-blue-800');
+            } else {
+                notification.classList.add('bg-gray-800');
+            }
+            
+            // Show notification
+            notification.style.opacity = 1;
+            
+            // Hide after delay (longer for errors, shorter for success)
+            const hideDelay = type === 'error' ? 5000 : (type === 'info' ? 4000 : 3000);
+            notification.hideTimeout = setTimeout(() => {
+                notification.style.opacity = 0;
+            }, hideDelay);
+        }
+        
+        // Auto-save data on a regular interval
+        let autoSaveInterval;
+        
+        function startAutoSave() {
+            // Save every 30 seconds if there have been changes
+            autoSaveInterval = setInterval(() => {
+                saveStateToDB();
+            }, 30000);
+        }
+        
+        function stopAutoSave() {
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+            }
+        }
+        
+        // Save data when user leaves the page
+        function setupBeforeUnloadHandler() {
+            window.addEventListener('beforeunload', () => {
+                // Synchronously save data before page unload
+                saveStateToDB();
+                saveStateToLocalStorage(); // Ensure localStorage is updated too
+            });
+        }
+        
+        // Check for app status (online/offline)
+        function setupConnectionHandlers() {
+            const offlineIndicator = document.getElementById('offline-indicator');
+            
+            // Function to update offline status indicator
+            function updateOfflineStatus() {
+                if (!navigator.onLine) {
+                    offlineIndicator.classList.remove('hidden');
+                } else {
+                    offlineIndicator.classList.add('hidden');
+                }
+            }
+            
+            // Check initial state
+            updateOfflineStatus();
+            
+            // Listen for online/offline events
+            window.addEventListener('online', () => {
+                showNotification('You are back online', 'success');
+                updateOfflineStatus();
+            });
+            
+            window.addEventListener('offline', () => {
+                showNotification('You are offline - Progress will be saved locally', 'info');
+                updateOfflineStatus();
+            });
+            
+            // Additional check for network status changes that might not trigger events
+            setInterval(updateOfflineStatus, 30000);
+        }
+        
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            initDatabase().then(() => {
+                loadStateFromDB();
+                renderTimeline();
+                setupEventListeners();
+                setupIntersectionObserver();
+                handleResponsiveLayout();
+                setupProgressControls();
+                startAutoSave();
+                setupBeforeUnloadHandler();
+                setupConnectionHandlers();
+                
+                // Listen for orientation changes
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(handleResponsiveLayout, 100);
+                });
+                
+                // Listen for resize events with debounce
+                let resizeTimer;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(handleResponsiveLayout, 100);
+                });
+            }).catch((error) => {
+                console.error("Initialization error:", error);
+                // Fallback to localStorage if DB initialization fails
+                loadStateFromLocalStorage();
+                renderTimeline();
+                setupEventListeners();
+                setupIntersectionObserver();
+                setupProgressControls();
+                setupBeforeUnloadHandler();
+            });
+        });
+    </script>
+</body>
+</html>

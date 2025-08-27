@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Media Universe Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #f0f0f0;
+            overflow-x: hidden;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .search-container {
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-bar {
+            background: rgba(20, 20, 25, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus {
+            background: rgba(25, 25, 30, 0.8);
+            border-color: #4f46e5;
+            box-shadow: 0 0 25px rgba(79, 70, 229, 0.5);
+        }
+
+        .page-card {
+            background: linear-gradient(145deg, rgba(25, 25, 30, 0.8), rgba(15, 15, 20, 0.8));
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        
+        .result-card {
+            background: linear-gradient(145deg, rgba(25, 25, 30, 0.8), rgba(15, 15, 20, 0.8));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s forwards;
+        }
+
+        .page-card:hover {
+            transform: translateY(-10px) rotateX(5deg) scale(1.03);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 15px rgba(79, 70, 229, 0.3);
+            border-color: rgba(79, 70, 229, 0.6);
+        }
+        
+        .result-card:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border-color: rgba(79, 70, 229, 0.6);
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-card .card-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(79, 70, 229, 0.2), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .page-card:hover .card-glow {
+            opacity: 1;
+        }
+        
+        /* Watched indicator */
+        .watched-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: #4f46e5;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+             background: #1a1a1f;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4f46e5;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6366f1;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <canvas id="particle-canvas"></canvas>
+
+    <main class="container mx-auto px-4 py-8 md:py-16 relative z-10">
+        <!-- Header Section -->
+        <header id="header" class="text-center mb-12 transition-all duration-500">
+            <h1 class="text-4xl md:text-6xl font-black tracking-tighter text-white">
+                Media Universe <span class="text-indigo-500">Hub</span>
+            </h1>
+            <p class="mt-4 text-lg text-gray-400 max-w-2xl mx-auto">
+                Your central command for every movie, series, and franchise. Search everything in one place.
+            </p>
+        </header>
+
+        <!-- Search Bar and Import Button Section -->
+        <div id="search-container" class="search-container w-full max-w-3xl mx-auto mb-12">
+            <div class="flex items-center gap-4">
+                <div class="relative flex-grow">
+                     <svg class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="search-bar" class="search-bar w-full py-4 pl-12 pr-4 text-white rounded-full focus:outline-none" placeholder="Search for a movie or series...">
+                </div>
+                <button id="import-progress-button" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-6 rounded-full transition-colors duration-300 whitespace-nowrap">
+                    Import Progress
+                </button>
+                <input type="file" id="import-file-input" class="hidden" accept=".json">
+            </div>
+        </div>
+
+        <!-- Main Content: Page Links or Search Results -->
+        <div id="content-area">
+            <!-- Page Links (Visible by default) -->
+            <div id="page-links-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <a href="M&S&G.html" class="page-card block rounded-2xl overflow-hidden group perspective-1000">
+                    <div class="relative p-6 h-full flex flex-col justify-between">
+                         <div class="card-glow"></div>
+                        <div><h2 class="text-2xl font-bold text-white">Media & Series Guide</h2><p class="text-gray-400 mt-2">A curated collection of movies, anime, and top-tier series.</p></div>
+                        <div class="mt-6 text-indigo-400 font-semibold group-hover:text-white transition-colors">Explore Collection &rarr;</div>
+                    </div>
+                </a>
+                <a href="MCU_Netflix.html" class="page-card block rounded-2xl overflow-hidden group perspective-1000">
+                    <div class="relative p-6 h-full flex flex-col justify-between">
+                         <div class="card-glow"></div>
+                        <div><h2 class="text-2xl font-bold text-white">The Defenders Saga</h2><p class="text-gray-400 mt-2">Track your progress through Marvel's gritty Netflix series.</p></div>
+                        <div class="mt-6 text-indigo-400 font-semibold group-hover:text-white transition-colors">View Timeline &rarr;</div>
+                    </div>
+                </a>
+                <a href="Star_Wars.html" class="page-card block rounded-2xl overflow-hidden group perspective-1000">
+                     <div class="relative p-6 h-full flex flex-col justify-between">
+                         <div class="card-glow"></div>
+                        <div><h2 class="text-2xl font-bold text-white">Star Wars Spinoffs</h2><p class="text-gray-400 mt-2">Dive into the animated shows and spinoffs of the galaxy far, far away.</p></div>
+                         <div class="mt-6 text-indigo-400 font-semibold group-hover:text-white transition-colors">Discover More &rarr;</div>
+                    </div>
+                </a>
+                <a href="watcher.html" class="page-card block rounded-2xl overflow-hidden group perspective-1000">
+                     <div class="relative p-6 h-full flex flex-col justify-between">
+                         <div class="card-glow"></div>
+                        <div><h2 class="text-2xl font-bold text-white">Franchise Tracker</h2><p class="text-gray-400 mt-2">Keep track of major movie franchises like MCU, Transformers, and more.</p></div>
+                         <div class="mt-6 text-indigo-400 font-semibold group-hover:text-white transition-colors">Track Franchises &rarr;</div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Search Results (Hidden by default) -->
+            <div id="search-results-container" class="hidden">
+                 <h2 id="results-title" class="text-2xl font-bold text-white mb-6">Search Results</h2>
+                 <div id="results-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 items-start">
+                 <p id="no-results-message" class="text-center text-gray-400 text-lg mt-8 hidden">No results found. Try a different search term.</p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Import Modal -->
+    <div id="import-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay hidden">
+        <div class="modal-content w-full max-w-md p-6 rounded-2xl shadow-lg border border-gray-700">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-white">Import Progress</h2>
+                <button id="close-modal-button" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <p class="text-gray-400 mb-6">Select which watchlist you want to import a backup file for.</p>
+            <div class="grid grid-cols-1 gap-4">
+                <button data-key="mediaTrackerWatched" class="import-option-button w-full text-left p-4 bg-gray-800 hover:bg-indigo-600 rounded-lg transition-colors">Media & Series Guide</button>
+                <button data-key="marvelTimelineWatched" class="import-option-button w-full text-left p-4 bg-gray-800 hover:bg-indigo-600 rounded-lg transition-colors">The Defenders Saga</button>
+                <button data-key="starWarsTimelineWatched" class="import-option-button w-full text-left p-4 bg-gray-800 hover:bg-indigo-600 rounded-lg transition-colors">Star Wars Spinoffs</button>
+                <button data-key="franchiseTrackerWatched" class="import-option-button w-full text-left p-4 bg-gray-800 hover:bg-indigo-600 rounded-lg transition-colors">Franchise Tracker</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    // --- DATA AGGREGATION ---
+    const allMediaData = [];
+
+    // 1. Data from M&S&G.html
+    const msgData = { m_series:{name:"M Series",subcategories:{raid:{name:"Raid",items:[{id:"raid1",title:"The Raid: Redemption (2011)",url:"https://moviesmod.cafe/download-the-raid-redemption-2011-hindi-480p-720p-1080p/",image:"The Raid Redemption (2011).jpg"},{id:"raid2",title:"The Raid 2 (2014)",url:"https://moviesmod.cafe/download-the-raid-2-2014-hindi-480p-720p-1080p/",image:"The Raid 2 (2014).jpg"}]},human_centipede:{name:"The Human Centipede",items:[{id:"hc2",title:"The Human Centipede II (2011)",url:"https://moviesmod.cafe/download-the-human-centipede-ii-2011-english-480p-720p/",image:"The Human Centipede II (2011).jpg"},{id:"hc3",title:"The Human Centipede III (2015)",url:"https://moviesmod.cafe/download-the-human-centipede-iii-2015-english-480p-720p/",image:"The Human Centipede III (2015).jpg"}]},moon:{name:"Moon",items:[{id:"moon1",title:"Rebel Moon – Chapter One: Chalice of Blood (2024)",url:"https://moviesmod.cafe/download-rebel-moon-chapter-one-chalice-of-blood-2024-directors-cut-hindi-english-480p-720p-1080p/",image:"Rebel Moon – Chapter One Chalice of Blood (2024).jpg"},{id:"moon2",title:"Rebel Moon – Chapter Two: Curse of Forgiveness (2024)",url:"https://moviesmod.cafe/download-rebel-moon-chapter-two-curse-of-forgiveness-2024-directors-cut-hindi-english-480p-720p-1080p/",image:"Rebel Moon – Chapter Two Curse of Forgiveness (2024).jpg"}]},lion:{name:"Lion",items:[{id:"lion1",title:"The Lion King (2019)",url:"https://www.imdb.com/title/tt6105098/",image:"The Lion King (2019).jpg"},{id:"lion2",title:"Mufasa: The Lion King (2024)",url:"https://www.imdb.com/title/tt13186482/",image:"Mufasa The Lion King (2024).jpg"}]}}},anime:{name:"Anime",items:[{id:"anime1",title:"Attack on Titan",url:"https://www.themoviedb.org/tv/1429",image:"Attack on Titan.jpg"},{id:"anime2",title:"Demon Slayer: Kimetsu no Yaiba",url:"https://www.themoviedb.org/tv/85937",image:"Demon Slayer Kimetsu no Yaiba.jpg"},{id:"anime3",title:"The Place Promised in Our Early Days",url:"https://www.imdb.com/title/tt0381348/",image:"The Place Promised in Our Early Days.jpg"},{id:"anime4",title:"Children Who Chase Lost Voices",url:"https://www.imdb.com/title/tt1839494/",image:"Children Who Chase Lost Voices.jpg"},{id:"anime5",title:"The Garden of Words (2013)",url:"https://www.imdb.com/title/tt2591814/",image:"The Garden of Words (2013).jpg"},{id:"anime6",title:"Weathering with You (2019)",url:"https://www.imdb.com/title/tt9426210/",image:"Weathering with You (2019).jpg"},{id:"anime7",title:"To Be Hero X",url:"https://www.themoviedb.org/tv/272059",image:"To Be Hero X.jpg"},{id:"anime8",title:"Solo Leveling",url:"https://www.themoviedb.org/tv/127532",image:"Solo Leveling.jpg"},{id:"anime9",title:"Sakamoto Days (2025)",url:"https://www.themoviedb.org/tv/207332",image:"Sakamoto Days (2025).jpg"},{id:"anime10",title:"The Boy and the Heron (2023)",url:"https://www.imdb.com/title/tt6587046/",image:"The Boy and the Heron (2023).jpg"},{id:"anime11",title:"Suzume (2022)",url:"https://www.imdb.com/title/tt16428256/",image:"Suzume (2022).jpg"},{id:"anime12",title:"Record of Ragnarok",url:"https://www.themoviedb.org/tv/114868",image:"Record of Ragnarok.jpg"},{id:"anime13",title:"Howl’s Moving Castle (2004)",url:"https://www.imdb.com/title/tt0347149/",image:"Howl’s Moving Castle (2004).jpg"},{id:"anime14",title:"5 Centimeters per Second (2007)",url:"https://www.imdb.com/title/tt0983213/",image:"5 Centimeters per Second (2007).jpg"}]},series:{name:"Series",subcategories:{links:{name:"links",items:[{id:"series1",title:"Pantheon",url:"https://www.themoviedb.org/tv/195339",image:"Pantheon.jpg"},{id:"series2",title:"Ripley",url:"https://www.themoviedb.org/tv/94028",image:"Ripley.jpg"},{id:"series3",title:"Slow Horses",url:"https://www.themoviedb.org/tv/95480",image:"Slow Horses.jpg"},{id:"series4",title:"The Legend of Vox Machina",url:"https://www.themoviedb.org/tv/135934",image:"The Legend of Vox Machina.jpg"},{id:"series5",title:"Blue Eye Samurai",url:"https://www.themoviedb.org/tv/225180",image:"Blue Eye Samurai.jpg"},{id:"series6",title:"Cyberpunk: Edgerunners",url:"https://www.themoviedb.org/tv/105248",image:"Cyberpunk Edgerunners.jpg"},{id:"series7",title:"The Sopranos",url:"https://www.themoviedb.org/tv/1398",image:"The Sopranos.jpg"},{id:"series8",title:"Masters Of The Air",url:"https://www.themoviedb.org/tv/46518",image:"Masters Of The Air.jpg"},{id:"series9",title:"Marvel’s Hit-Monkey",url:"https://www.themoviedb.org/tv/133903",image:"Marvel’s Hit-Monkey.jpg"},{id:"series10",title:"House of Cards",url:"https://www.themoviedb.org/tv/1425",image:"House of Cards.jpg"},{id:"series11",title:"Black Sails",url:"https://www.themoviedb.org/tv/47665",image:"Black Sails.jpg"}]},bat:{name:"Bat",items:[{id:"bat1",title:"DC Animated Universe",url:"https://en.wikipedia.org/wiki/DC_Animated_Universe",image:"DC Animated Universe.jpg"},{id:"bat2",title:"1.Batman TAS",url:"https://moviesmod.cafe/download-batman-the-animated-series-season-1-4-english-720p-1080p/",image:"1.Batman TAS.jpg"},{id:"bat3",title:"2.Batman: Mask of the Phantasm (1993)",url:"https://moviesmod.cafe/download-batman-mask-of-the-phantasm-1993-hindi-english-480p-720p-1080p/",image:"2.Batman Mask of the Phantasm (1993).jpg"}]}}},movies:{name:"Movies",subcategories:{links:{name:"links",items:[{id:"movies1",title:"Gran Turismo (2023)",url:"https://www.themoviedb.org/movie/980489",image:"Gran Turismo.jpg"},{id:"movies2",title:"Fantastic Mr. Fox (2009)",url:"https://www.themoviedb.org/movie/10315",image:"Fantastic Mr. Fox.jpg"},{id:"movies3",title:"The Man from U.N.C.L.E. (2015)",url:"https://www.themoviedb.org/movie/203801",image:"The Man from U.N.C.L.E..jpg"}]},give_a_try:{name:"give a try",items:[{id:"movies4",title:"Polytechnique (2009)",url:"https://www.themoviedb.org/movie/22302",image:"Polytechnique.jpg"},{id:"movies5",title:"Rush (2013)",url:"https://www.themoviedb.org/movie/96721",image:"Rush.jpg"},{id:"movies6",title:"Iratta (2023)",url:"https://www.themoviedb.org/movie/945167",image:"Iratta.jpg"},{id:"movies7",title:"God’s Crooked Lines (2022)",url:"https://www.themoviedb.org/movie/890980",image:"God’s Crooked Lines.jpg"},{id:"movies8",title:"True Romance (1993)",url:"https://www.themoviedb.org/movie/319",image:"True Romance.jpg"}]},slasher:{name:"slasher",items:[{id:"movies9",title:"The Sadness (2021)",url:"https://www.imdb.com/title/tt13872248/",image:"The Sadness (2021).jpg"},{id:"movies10",title:"Saw (2004)",url:"https://www.themoviedb.org/movie/176",image:"Saw.jpg"}]},feel_good:{name:"feel good",items:[{id:"movies11",title:"The Life of Chuck (2024)",url:"https://www.themoviedb.org/movie/842924",image:"The Life of Chuck.jpg"},{id:"movies12",title:"Our Friend (2019)",url:"https://www.themoviedb.org/movie/583903",image:"Our Friend.jpg"}]},horror:{name:"horror",items:[{id:"movies13",title:"Midsommar (2019)",url:"https://www.themoviedb.org/movie/530385",image:"Midsommar.jpg"},{id:"movies14",title:"Exhuma (2024)",url:"https://www.themoviedb.org/movie/838209",image:"Exhuma.jpg"}]},compulsory:{name:"compulsory",items:[{id:"movies15",title:"The Shawshank Redemption (1994)",url:"https://www.themoviedb.org/movie/278",image:"The Shawshank Redemption.jpg"},{id:"movies16",title:"Se7en (1995)",url:"https://www.themoviedb.org/movie/807",image:"Se7en.jpg"},{id:"movies17",title:"2001: A Space Odyssey",url:"https://www.themoviedb.org/movie/62",image:"2001 A Space Odyssey.jpg"},{id:"movies18",title:"The Devil’s Advocate (1997)",url:"https://www.themoviedb.org/movie/1813",image:"The Devil’s Advocate.jpg"},{id:"movies19",title:"BlackBerry (2023)",url:"https://www.themoviedb.org/movie/1016084",image:"BlackBerry.jpg"},{id:"movies20",title:"The Lincoln Lawyer (2011)",url:"https://www.themoviedb.org/movie/50348",image:"The Lincoln Lawyer.jpg"},{id:"movies21",title:"Taken (2008)",url:"https://www.themoviedb.org/movie/8681",image:"Taken.jpg"},{id:"movies22",title:"Society Of The Snow (2024)",url:"https://www.themoviedb.org/movie/906126",image:"Society Of The Snow.jpg"},{id:"movies23",title:"Silence (2016)",url:"https://www.imdb.com/title/tt0490215/",image:"Silence (2016).jpg"},{id:"movies24",title:"The Usual Suspects (1995)",url:"https://www.themoviedb.org/movie/629",image:"The Usual Suspects.jpg"},{id:"movies25",title:"Children of Men (2006)",url:"https://www.themoviedb.org/movie/9693",image:"Children of Men.jpg"},{id:"movies26",title:"Primer (2004)",url:"https://www.themoviedb.org/movie/14337",image:"Primer.jpg"},{id:"movies27",title:"Slumdog Millionaire (2008)",url:"https://www.themoviedb.org/movie/12405",image:"Slumdog Millionaire.jpg"},{id:"movies28",title:"Mahavatar Narsimha",url:"https://www.themoviedb.org/movie/1383072",image:"Mahavatar Narsimha.jpg"},{id:"movies29",title:"Sicario (2015)",url:"https://www.themoviedb.org/movie/273481",image:"Sicario.jpg"},{id:"movies30",title:"The Assassination of Jesse James by the Coward Robert Ford (2007)",url:"https://www.themoviedb.org/movie/4512",image:"The Assassination of Jesse James by the Coward Robert Ford.jpg"},{id:"movies31",title:"The Aviator (2004)",url:"https://www.themoviedb.org/movie/2567",image:"The Aviator.jpg"},{id:"movies32",title:"Whiplash (2014)",url:"https://www.themoviedb.org/movie/244786",image:"Whiplash.jpg"},{id:"movies33",title:"The Social Network (2010)",url:"https://www.themoviedb.org/movie/37799",image:"The Social Network.jpg"},{id:"movies34",title:"The Pursuit of Happyness (2006)",url:"https://www.themoviedb.org/movie/1402",image:"The Pursuit of Happyness.jpg"},{id:"movies35",title:"The Killer (2023)",url:"https://www.imdb.com/title/tt1136617/",image:"The Killer (2023).jpg"},{id:"movies36",title:"The Great Gatsby (2013)",url:"https://www.themoviedb.org/movie/64682",image:"The Great Gatsby.jpg"},{id:"movies37",title:"Schindler’s List (1993)",url:"https://www.themoviedb.org/movie/424",image:"Schindler’s List.jpg"},{id:"movies38",title:"Saving Private Ryan (1998)",url:"https://www.themoviedb.org/movie/857",image:"Saving Private Ryan.jpg"},{id:"movies39",title:"Memories of Murder (2003)",url:"https://www.themoviedb.org/movie/11423",image:"Memories of Murder.jpg"},{id:"movies40",title:"Memento (2000)",url:"https://www.themoviedb.org/movie/77",image:"Memento.jpg"},{id:"movies41",title:"Marco (2024)",url:"https://www.imdb.com/title/tt29383379/",image:"Marco (2024).jpg"},{id:"movies42",title:"Maanaadu (2021)",url:"https://www.themoviedb.org/movie/535156",image:"Maanaadu.jpg"},{id:"movies43",title:"Léon: The Professional (1994)",url:"https://www.themoviedb.org/movie/101",image:"Léon The Professional.jpg"},{id:"movies44",title:"The Girl with the Dragon Tattoo (2011)",url:"https://www.themoviedb.org/movie/65754",image:"The Girl with the Dragon Tattoo.jpg"},{id:"movies45",title:"Final Destination: Bloodlines (2025)",url:"https://www.themoviedb.org/movie/574475",image:"Final Destination Bloodlines.jpg"},{id:"movies46",title:"Catch Me If You Can (2002)",url:"https://www.themoviedb.org/movie/640",image:"Catch Me If You Can.jpg"}]},spy:{name:"spy",items:[{id:"movies47",title:"Black Bag (2025)",url:"https://www.themoviedb.org/movie/1233575",image:"Black Bag.jpg"}]},sci_fi:{name:"sci-fi",items:[{id:"movies48",title:"District 9 (2009)",url:"https://www.themoviedb.org/movie/17654",image:"District 9.jpg"},{id:"movies49",title:"Annihilation (2018)",url:"https://www.themoviedb.org/movie/300668",image:"Annihilation.jpg"}]},classic:{name:"Classic",items:[{id:"movies50",title:"GoodFellas",url:"https://www.themoviedb.org/movie/769",image:"GoodFellas.jpg"},{id:"movies51",title:"Lawrence of Arabia",url:"https://www.themoviedb.org/movie/947",image:"Lawrence of Arabia.jpg"},{id:"movies52",title:"Cleopatra (1963)",url:"https://www.themoviedb.org/movie/39950",image:"Cleopatra.jpg"},{id:"movies53",title:"Heat (1995)",url:"https://www.themoviedb.org/movie/949",image:"Heat.jpg"},{id:"movies54",title:"Pulp Fiction (1994)",url:"https://www.themoviedb.org/movie/680",image:"Pulp Fiction.jpg"},{id:"movies55",title:"Insomnia (2002)",url:"https://www.themoviedb.org/movie/320",image:"Insomnia.jpg"},{id:"movies56",title:"Following (1998)",url:"https://www.themoviedb.org/movie/11660",image:"Following.jpg"},{id:"movies57",title:"...And Justice for All (1979)",url:"https://www.themoviedb.org/movie/17443",image:"And Justice for All.jpg"}]},comedy:{name:"Comedy",items:[{id:"movies58",title:"The Grand Budapest Hotel (2014)",url:"https://www.themoviedb.org/movie/120467",image:"The Grand Budapest Hotel.jpg"}]},a_plus_comedy:{name:"A+ Comedy",items:[{id:"movies59",title:"Lock, Stock and Two Smoking Barrels (1998)",url:"https://www.themoviedb.org/movie/100",image:"Lock, Stock and Two Smoking Barrels.jpg"},{id:"movies60",title:"Snatch (2000)",url:"https://www.themoviedb.org/movie/107",image:"Snatch.jpg"},{id:"movies61",title:"Anyone But You (2023)",url:"https://www.themoviedb.org/movie/1072790",image:"Anyone But You.jpg"},{id:"movies62",title:"21 Jump Street (2012)",url:"https://www.themoviedb.org/movie/64688",image:"21 Jump Street.jpg"}]}}},down_games:{name:"Down (Games)",subcategories:{links:{name:"links",items:[{id:"games1",title:"Red dead redemption",url:"https://dodi-repacks.site/red-dead-redemption/",image:"Red dead redemption.jpg"},{id:"games2",title:"Assassin's Creed: Unity - v1.5.0 + All DLCs - FitGirl Repacks",url:"https://fitgirl-repacks.site/assassins-creed-unity-v1-5-0-dlcs/",image:"Assassin's Creed Unity - v1.5.0 + All DLCs - FitGirl Repacks.jpg"},{id:"games3",title:"Watch Dogs v1.06.329 + All DLCs - FitGirl Repacks",url:"https://fitgirl-repacks.site/watch-dogs-v1-06-329-all-dlcs/",image:"Watch Dogs v1.06.329 + All DLCs - FitGirl Repacks.jpg"},{id:"games4",title:"L.A. Noire: The Complete Edition - v2675.1 + All DLCs - FitGirl Repacks",url:"https://fitgirl-repacks.site/la-noire/",image:"L.A. Noire The Complete Edition - v2675.1 + All DLCs - FitGirl Repacks.jpg"},{id:"games5",title:"486 call of juarez gunslinger update v1 05 dlcs multi9 dodi repack",url:"https://dodi-repacks.site/486-call-of-juarez-gunslinger-update-v1-05-dlcs-multi9-dodi-repack/",image:"486 call of juarez gunslinger update v1 05 dlcs multi9 dodi repack.jpg"},{id:"games6",title:"Alan Wake: Collector's Edition - v1.07.33.72514 + 2 DLCs + Bonus Content - FitGirl Repacks",url:"https://fitgirl-repacks.site/alan-wake-collectors-edition/",image:"Alan Wake Collector's Edition - v1.07.33.72514 + 2 DLCs + Bonus Content - FitGirl Repacks.jpg"},{id:"games7",title:"Download Alien: Isolation – Complete Edition (Update 8 + DLCs)",url:"https://gamesleech.com/alien-isolation/",image:"Download Alien Isolation – Complete Edition (Update 8 + DLCs).jpg"},{id:"games8",title:"HITMAN 2: Gold Edition - v2.70.1 + All DLCs - FitGirl Repacks",url:"https://fitgirl-repacks.site/hitman-2/",image:"HITMAN 2 Gold Edition - v2.70.1 + All DLCs - FitGirl Repacks.jpg"},{id:"games9",title:"Metro Redux (2033 + Last Light) - GOG v2.0.0.2 + Update 7 - FitGirl Repacks",url:"https://fitgirl-repacks.site/metro-redux/",image:"Metro Redux (2033 + Last Light) - GOG v2.0.0.2 + Update 7 - FitGirl Repacks.jpg"},{id:"games10",title:"THIEF: Definitive Edition - v1.7 GOG + All DLCs + Bonus Content - FitGirl Repacks",url:"https://fitgirl-repacks.site/thief-definitive-edition/",image:"THIEF Definitive Edition - v1.7 GOG + All DLCs + Bonus Content - FitGirl Repacks.jpg"},{id:"games11",title:"The Saboteur (GOG, DRM-Free) - FitGirl Repacks",url:"https://fitgirl-repacks.site/saboteur-gog-drm-free/",image:"The Saboteur (GOG, DRM-Free) - FitGirl Repacks.jpg"},{id:"games12",title:"Deadpool - FitGirl Repacks",url:"https://fitgirl-repacks.site/deadpool/",image:"Deadpool - FitGirl Repacks.jpg"},{id:"games13",title:"Injustice: Gods Among Us",url:"https://pc-games.eu.org/apps/injustice-gods-among-us",image:"Injustice Gods Among Us.jpg"},{id:"games14",title:"Mortal Kombat (2011)",url:"https://pc-games.eu.org/apps/mortal-kombat-2011",image:"Mortal Kombat (2011).jpg"},{id:"games15",title:"The Amazing Spider-Man (2012)",url:"https://en.wikipedia.org/wiki/The_Amazing_Spider-Man_(2012_video_game)",image:"The Amazing Spider-Man (2012).jpg"},{id:"games16",title:"Far Cry Primal",url:"https://en.wikipedia.org/wiki/Far_Cry_Primal",image:"Far Cry Primal.jpg"},{id:"games17",title:"Manhunt",url:"https://en.wikipedia.org/wiki/Manhunt_(video_game)",image:"Manhunt.jpg"},{id:"games18",title:"Total Overdose",url:"https://en.wikipedia.org/wiki/Total_Overdose",image:"Total Overdose.jpg"}]},saint_row_3:{name:"Saint Row 3",items:[{id:"games19",title:"Saints Row: The Third – Remastered, v20211028 (Epic Store) + All DLCs + LAN Multiplayer",url:"https://fitgirl-repacks.site/saints-row-the-third-remastered/",image:"Saints Row The Third – Remastered, v20211028 (Epic Store) + All DLCs + LAN Multiplayer.jpg"},{id:"games20",title:"Saints Row: The Third – The Full Package Free Download",url:"https://gogunlocked.com/1-saints-row-the-third-the-full-package-free-download/",image:"Saints Row The Third – The Full Package Free Download.jpg"}]},evil:{name:"Evil",items:[{id:"games21",title:"1._1109 resident evil 0 biohazard 0 hd remaster...",url:"https://dodi-repacks.site/1109-resident-evil-0-biohazard-0-hd-remaster-all-dlcs-multi6-from-4-7-gb-dodi-repack/",image:"1._1109 resident evil 0 biohazard 0 hd remaster....jpg"},{id:"games22",title:"2._1110 resident evil biohazard hd remaster...",url:"https://dodi-repacks.site/1110-resident-evil-biohazard-hd-remaster-multi6-from-4-7-gb-dodi-repack/",image:"2._1110 resident evil biohazard hd remaster....jpg"},{id:"games23",title:"3._1357 resident evil 2 biohazard re2 deluxe edition...",url:"https://dodi-repacks.site/1357-resident-evil-2-biohazard-re2-deluxe-edition-v1-0-build-8814181-dx12-update-all-dlcs-bonus-content-multi14-from-17-1-gb-dodi-repack/",image:"3._1357 resident evil 2 biohazard re2 deluxe edition....jpg"}]}}},franchise:{name:"Franchise",items:[{id:"franchise1",title:"The Hunger Games (franchise)",url:"https://en.wikipedia.org/wiki/The_Hunger_Games_(franchise)",image:"The Hunger Games (franchise).jpg"},{id:"franchise2",title:"The Matrix (franchise) - Wikipedia",url:"https://en.m.wikipedia.org/wiki/The_Matrix_(franchise)",image:"The Matrix (franchise) - Wikipedia.jpg"},{id:"franchise3",title:"Terrifier (film series)",url:"https://en.wikipedia.org/wiki/Terrifier_(film_series)",image:"Terrifier (film series).jpg"},{id:"franchise4",title:"Terminator (franchise)",url:"https://en.wikipedia.org/wiki/Terminator_(franchise)",image:"Terminator (franchise).jpg"},{id:"franchise5",title:"Outline of the Marvel Cinematic Universe",url:"https://en.wikipedia.org/wiki/Outline_of_the_Marvel_Cinematic_Universe",image:"Outline of the Marvel Cinematic Universe.jpg"}]},hotey:{name:"Hotey",subcategories:{romance:{name:"Romance",items:[{id:"hotey1",title:"Little Children (2006)",url:"https://www.themoviedb.org/movie/1440",image:"Little Children.jpg"},{id:"hotey2",title:"The Sleeping Dictionary (2003)",url:"https://www.themoviedb.org/movie/25988",image:"The Sleeping Dictionary.jpg"}]},comedy:{name:"Comedy",items:[{id:"hotey3",title:"Love & Other Drugs (2010)",url:"https://www.imdb.com/title/tt0758752/",image:"Love & Other Drugs (2010).jpg"},{id:"hotey4",title:"No Hard Feelings (2023)",url:"https://www.themoviedb.org/movie/884605",image:"No Hard Feelings.jpg"}]},indian:{name:"Indian",items:[{id:"hotey5",title:"Kannappa",url:"https://www.imdb.com/title/tt5306972/",image:"Kannappa.jpg"}]},thriller:{name:"Thriller",items:[{id:"hotey6",title:"Original Sin (2001)",url:"https://www.themoviedb.org/movie/2057",image:"Original Sin.jpg"},{id:"hotey7",title:"Voice from the Stone (2017)",url:"https://www.themoviedb.org/movie/301372",image:"Voice from the Stone.jpg"},{id:"hotey8",title:"Taking Lives (2004)",url:"https://www.themoviedb.org/movie/11081",image:"Taking Lives.jpg"},{id:"hotey9",title:"Basic Instinct (1992)",url:"https://www.themoviedb.org/movie/402",image:"Basic Instinct.jpg"}]}}}};
+    Object.values(msgData).forEach(category => {
+        const processItems = (items, catName) => {
+            if (items) {
+                items.forEach(item => allMediaData.push({ ...item, page: 'M&S&G.html', category: catName, image: `images/${item.image}` }));
+            }
+        };
+        processItems(category.items, category.name);
+        if (category.subcategories) {
+            Object.values(category.subcategories).forEach(sub => processItems(sub.items, `${category.name}: ${sub.name}`));
+        }
+    });
+
+    // 2. Data from MCU_Netflix.html
+    const mcuNetflixData = [{title:"Daredevil",season:1,date:"April 10, 2015"},{title:"Jessica Jones",season:1,date:"November 20, 2015"},{title:"Daredevil",season:2,date:"March 18, 2016"},{title:"Luke Cage",season:1,date:"September 30, 2016"},{title:"Iron Fist",season:1,date:"March 17, 2017"},{title:"The Defenders",season:1,date:"August 18, 2017"},{title:"The Punisher",season:1,date:"November 17, 2017"},{title:"Jessica Jones",season:2,date:"March 8, 2018"},{title:"Luke Cage",season:2,date:"June 22, 2018"},{title:"Iron Fist",season:2,date:"September 7, 2018"},{title:"Daredevil",season:3,date:"October 19, 2018"},{title:"The Punisher",season:2,date:"January 18, 2019"},{title:"Jessica Jones",season:3,date:"June 14, 2019"}];
+    mcuNetflixData.forEach(item => {
+        allMediaData.push({
+            id: `${item.title}-${item.season}`,
+            title: `${item.title} - Season ${item.season}`,
+            page: 'MCU_Netflix.html',
+            category: 'The Defenders Saga',
+            image: `images/${item.title} - Season ${item.season}.png`
+        });
+    });
+
+    // 3. Data from Star_Wars.html
+    const starWarsData = [{title:"Star Wars Holiday Special",season:"TV Special",date:"Nov 17, 1978",image:"images/Star Wars Holiday Special - TV Special.png",description:"The infamous variety show featuring Chewbacca's family and musical performances."},{title:"The Ewok Adventure",season:"TV Film",date:"Nov 25, 1984",image:"images/The Ewok Adventure - TV Film.png",description:"The Towani family is stranded on Endor and needs the help of the Ewoks to find their parents."},{title:"Droids",season:"1 Season",date:"Sep 1985 - Jun 1986",image:"images/Droids - 1 Season.png",description:"The adventures of R2-D2 and C-3PO before they joined the Rebellion."},{title:"Ewoks",season:"2 Seasons",date:"Sep 1985 - Dec 1986",image:"images/Ewoks - 2 Seasons.png",description:"Follow the adventures of Wicket and his friends on the forest moon of Endor."},{title:"Ewoks The Battle for Endor",season:"TV Film",date:"Nov 24, 1985",image:"images/Ewoks The Battle for Endor - TV Film.png",description:"Cindel and the Ewoks must fight against evil marauders who have taken over Endor."},{title:"Clone Wars (2D Micro-Series)",season:"3 Seasons",date:"Nov 2003 - Mar 2005",image:"images/Clone Wars (2D Micro-Series) - 3 Seasons.png",description:"Genndy Tartakovsky's stylized take on the Clone Wars."},{title:"The Clone Wars",season:"Animated Film",date:"2008",image:"images/The Clone Wars - Animated Film.png",description:"Anakin and his new Padawan Ahsoka must rescue Jabba the Hutt's son."},{title:"The Clone Wars (Animated Series)",season:"7 Seasons",date:"Oct 2008 - May 2020",image:"images/The Clone Wars (Animated Series) - 7 Seasons.png",description:"The epic saga of the Clone Wars featuring Anakin, Obi-Wan, and Ahsoka."},{title:"Rebels",season:"4 Seasons",date:"Oct 2014 - Mar 2018",image:"images/Rebels - 4 Seasons.png",description:"The crew of the Ghost fights against the Empire in the early days of the Rebellion."},{title:"Blips",season:"1 Season",date:"May - Sep 2017",image:"images/Blips - 1 Season.png",description:"Short adventures featuring BB-8 and other droids from the sequel trilogy."},{title:"Forces of Destiny",season:"2 Seasons",date:"Jul 2017 - May 2018",image:"images/Forces of Destiny - 2 Seasons.png",description:"Short stories focusing on the heroines of Star Wars."},{title:"Resistance",season:"2 Seasons",date:"Oct 2018 - Jan 2020",image:"images/Resistance - 2 Seasons.png",description:"Kazuda Xiono becomes a spy for the Resistance against the First Order."},{title:"Galaxy of Adventures",season:"2 Seasons",date:"Nov 2018 - Oct 2020",image:"images/Galaxy of Adventures - 2 Seasons.png",description:"Reimagined classic Star Wars moments in a modern animation style."},{title:"Roll Out",season:"1 Season",date:"Aug 2019 - Apr 2020",image:"images/Roll Out - 1 Season.png",description:"Cute, spherical versions of Star Wars characters have mini-adventures."},{title:"The Bad Batch",season:"3 Seasons",date:"May 2021 - May 2024",image:"images/The Bad Batch - 3 Seasons.png",description:"Elite clone troopers with genetic mutations navigate the early Imperial era."},{title:"Visions",season:"2 Seasons",date:"Sep 2021 - Ongoing",image:"images/Visions - 2 Seasons.png",description:"Anime-inspired anthology series with unique takes on the Star Wars universe."},{title:"Galaxy of Creatures",season:"2 Seasons",date:"Oct 2021 - Feb 2023",image:"images/Galaxy of Creatures - 2 Seasons.png",description:"A droid explores and documents various creatures throughout the galaxy."},{title:"Galactic Pals",season:"1 Season",date:"Apr - Nov 2022",image:"images/Galactic Pals - 1 Season.png",description:"A caretaker droid looking after baby versions of Star Wars aliens."},{title:"Tales",season:"3 Seasons",date:"Oct 2022 - Ongoing",image:"images/Tales - 3 Seasons.png",description:"Anthology series exploring pivotal moments in characters' lives."},{title:"Zen - Grogu and the Dust Bunnies",season:"1 Short",date:"Nov 12, 2022",image:"images/Zen - Grogu and the Dust Bunnies - 1 Short.png",description:"A Studio Ghibli short featuring Grogu interacting with soot sprites."},{title:"Young Jedi Adventures",season:"2 Seasons",date:"May 2023 - Ongoing",image:"images/Young Jedi Adventures - 2 Seasons.png",description:"Younglings train in the ways of the Force during the High Republic era."},{title:"Fun with Nubs",season:"1 Season",date:"Jun 2024 - Ongoing",image:"images/Fun with Nubs - 1 Season.png",description:"The youngling Nubs gets into mischief while learning about the Force."}];
+    starWarsData.forEach(item => {
+        allMediaData.push({
+            id: `${item.title}-${item.season}`,
+            title: `${item.title} - ${item.season}`,
+            page: 'Star_Wars.html',
+            category: 'Star Wars Animated & Spinoffs',
+            image: `${item.image}` // Corrected path
+        });
+    });
+
+    // 4. Data from watcher.html
+    const watcherData = {marvel_cinematic_universe:{name:"Marvel Cinematic Universe",color:"from-red-500 to-red-600",items:[{id:"mcu1",title:"Agents of S.H.I.E.L.D. season 2",type:"ABC series",year:"2014-2015"},{id:"mcu2",title:"Agent Carter season 1",type:"ABC series",year:"2015"},{id:"mcu4",title:"Agents of S.H.I.E.L.D. season 3",type:"ABC series",year:"2015-2016"},{id:"mcu6",title:"Agent Carter season 2",type:"ABC series",year:"2016"},{id:"mcu8",title:"Agents of S.H.I.E.L.D. season 4",type:"ABC series",year:"2016-2017",note:"Watch Slingshot after S4.E8"},{id:"mcu9",title:"Agents of S.H.I.E.L.D.: Slingshot",type:"Web series",year:"2016"},{id:"mcu15",title:"Runaways season 1",type:"Young adult series",year:"2017-2018"},{id:"mcu16",title:"Agents of S.H.I.E.L.D. season 5",type:"ABC series",year:"2017-2018"},{id:"mcu18",title:"Cloak & Dagger season 1",type:"Young adult series",year:"2018"},{id:"mcu22",title:"Runaways season 2",type:"Young adult series",year:"2018"},{id:"mcu24",title:"Cloak & Dagger season 2",type:"Young adult series",year:"2019"},{id:"mcu25",title:"Agents of S.H.I.E.L.D. season 6",type:"ABC series",year:"2019"},{id:"mcu27",title:"Runaways season 3",type:"Young adult series",year:"2019"},{id:"mcu28",title:"Agents of S.H.I.E.L.D. season 7",type:"ABC series",year:"2020"},{id:"mcu29",title:"Helstrom season 1",type:"Adventure into Fear series",year:"2020"},{id:"mcu30",title:"Captain America: Brave New World",type:"Film",year:"2025"},{id:"mcu31",title:"Daredevil: Born Again season 1",type:"Phase Five series",year:"2025 (Expected)"},{id:"mcu32",title:"Thunderbolts*",type:"Film",year:"2025",alternateImageName:"Thunderbolts"},{id:"mcu33",title:"Ironheart season 1",type:"Phase Five series",year:"2025 (Expected)"},{id:"mcu34",title:"The Fantastic Four",type:"Film",year:"2025"},{id:"mcu36",title:"Marvel Zombies season 1",type:"Phase Six series",year:"2025 (Expected)"},{id:"mcu37",title:"Wonder Man season 1",type:"Phase Six series",year:"2025 (Expected)"}]},transformers:{name:"Transformers",color:"from-purple-500 to-indigo-600",items:[{id:"t1",title:"Transformers: Beginnings",type:"Short film",year:"2007"},{id:"t2",title:"Transformers: Cyber Missions",type:"Web series",year:"2010"},{id:"t3",title:"Transformers: The Last Knight",type:"Film",year:"2017"},{id:"t4",title:"Bumblebee",type:"Film",year:"2018"},{id:"t5",title:"Bumblebee's First Life on Earth",type:"Web series",year:"2019"},{id:"t6",title:"Agent Burns: Welcome to Sector 7",type:"Short film",year:"2019"},{id:"t7",title:"Sector 7 Adventures: The Battle at Half Dome",type:"Short film",year:"2019"},{id:"t8",title:"Transformers: Rise of the Beasts",type:"Film",year:"2023"}]},fast_furious:{name:"Fast & Furious",color:"from-orange-500 to-red-600",items:[{id:"ff1",title:"The Turbo Charged Prelude for 2 Fast 2 Furious",type:"Short film",year:"2003"},{id:"ff2",title:"2 Fast 2 Furious",type:"Film",year:"2003"},{id:"ff3",title:"The Fast and the Furious: Tokyo Drift",type:"Film",year:"2006"},{id:"ff4",title:"Fast & Furious",type:"Film",year:"2009"},{id:"ff5",title:"Los Bandoleros",type:"Short film",year:"2009"},{id:"ff6",title:"Fast Five",type:"Film",year:"2011"},{id:"ff7",title:"Fast & Furious 6",type:"Film",year:"2013"},{id:"ff8",title:"Furious 7",type:"Film",year:"2015"},{id:"ff9",title:"The Fate of the Furious",type:"Film",year:"2017"},{id:"ff10",title:"Hobbs & Shaw",type:"Film",year:"2019"},{id:"ff11",title:"F9",type:"Film",year:"2021"},{id:"ff12",title:"Fast X",type:"Film",year:"2023"}]},jurassic_park:{name:"Jurassic Park",color:"from-green-500 to-teal-600",items:[{id:"jp2",title:"Jurassic World: Fallen Kingdom",type:"Film",year:"2018"},{id:"jp3",title:"Battle at Big Rock",type:"Short film",year:"2019"},{id:"jp4",title:"Jurassic World Dominion prologue",type:"Short film",year:"2021"},{id:"jp5",title:"Jurassic World Dominion",type:"Film",year:"2022"},{id:"jp6",title:"Jurassic World Rebirth",type:"Film",year:"2025"}]}};
+    Object.values(watcherData).forEach(franchise => {
+        franchise.items.forEach(item => {
+            const imageTitle = (item.alternateImageName || item.title).replace(/:/g, '').replace(/'/g, '\'').replace(/\*/g, '');
+            allMediaData.push({
+                ...item,
+                page: 'watcher.html',
+                category: franchise.name,
+                image: `images/${imageTitle}.png` // Corrected path
+            });
+        });
+    });
+
+    let allWatchedStates = {};
+    let selectedStorageKey = '';
+
+    // --- DOM ELEMENTS ---
+    const searchBar = document.getElementById('search-bar');
+    const pageLinksContainer = document.getElementById('page-links-container');
+    const searchResultsContainer = document.getElementById('search-results-container');
+    const resultsGrid = document.getElementById('results-grid');
+    const noResultsMessage = document.getElementById('no-results-message');
+    const header = document.getElementById('header');
+    const searchContainer = document.getElementById('search-container');
+    const resultsTitle = document.getElementById('results-title');
+    const importButton = document.getElementById('import-progress-button');
+    const fileInput = document.getElementById('import-file-input');
+    const importModal = document.getElementById('import-modal');
+    const closeModalButton = document.getElementById('close-modal-button');
+
+    // --- WATCHED STATE MANAGEMENT ---
+    function loadAllWatchedStates() {
+        const keys = ['mediaTrackerWatched', 'marvelTimelineWatched', 'starWarsTimelineWatched', 'franchiseTrackerWatched'];
+        allWatchedStates = {};
+        keys.forEach(key => {
+            try {
+                const data = JSON.parse(localStorage.getItem(key) || '{}');
+                Object.assign(allWatchedStates, data);
+            } catch (e) {
+                console.error(`Error parsing data from ${key}:`, e);
+            }
+        });
+    }
+
+    // --- SEARCH FUNCTIONALITY ---
+    searchBar.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+
+        if (query.length > 0) {
+            pageLinksContainer.classList.add('hidden');
+            searchResultsContainer.classList.remove('hidden');
+            header.classList.add('md:-translate-y-16');
+            searchContainer.classList.add('md:-translate-y-8');
+            const filteredResults = allMediaData.filter(item => item.title.toLowerCase().includes(query));
+            displayResults(filteredResults, query);
+        } else {
+            pageLinksContainer.classList.remove('hidden');
+            searchResultsContainer.classList.add('hidden');
+            header.classList.remove('md:-translate-y-16');
+            searchContainer.classList.remove('md:-translate-y-8');
+        }
+    });
+
+    function displayResults(results, query) {
+    resultsGrid.innerHTML = '';
+    if (results.length === 0) {
+        noResultsMessage.classList.remove('hidden');
+    } else {
+        noResultsMessage.classList.add('hidden');
+        resultsTitle.innerHTML = `${results.length} results for "<span class="text-indigo-400">${query}</span>"`;
+        results.forEach((item, index) => {
+            const isWatched = allWatchedStates[item.id] === true;
+            const card = document.createElement('a');
+            card.href = `${item.page}#item=${item.id}`; // Link to the page with a hash for highlighting
+            // REMOVED 'h-full' to prevent stretching and allow 'items-start' on the grid to work correctly.
+            card.className = 'result-card flex flex-col rounded-xl overflow-hidden group';
+            card.style.animationDelay = `${index * 0.05}s`;
+
+            const placeholder = `https://via.placeholder.com/300x169/1a1a1f/ffffff?text=${encodeURIComponent(item.title.substring(0, 15))}`;
+            
+            card.innerHTML = `
+                <div class="relative overflow-hidden bg-gray-900/50 aspect-w-16 aspect-h-9">
+                    <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" onerror="this.onerror=null; this.src='${placeholder}';">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                    ${isWatched ? '<div class="watched-indicator"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><polyline points="20 6 9 17 4 12"></polyline></svg>Watched</div>' : ''}
+                </div>
+                <div class="p-3 mt-auto"> 
+                    <h3 class="text-sm font-bold text-white truncate group-hover:text-indigo-300" title="${item.title}">${item.title}</h3>
+                    <p class="text-xs text-gray-400 truncate">${item.category}</p>
+                </div>
+            `;
+            resultsGrid.appendChild(card);
+        });
+    }
+}
+
+
+
+
+    // --- IMPORT MODAL FUNCTIONALITY ---
+    importButton.addEventListener('click', () => importModal.classList.remove('hidden'));
+    closeModalButton.addEventListener('click', () => importModal.classList.add('hidden'));
+    importModal.addEventListener('click', (e) => {
+        if (e.target === importModal) {
+            importModal.classList.add('hidden');
+        }
+    });
+
+    document.querySelectorAll('.import-option-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            selectedStorageKey = e.target.dataset.key;
+            fileInput.click();
+        });
+    });
+
+    fileInput.addEventListener('change', handleFileUpload);
+
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file || !selectedStorageKey) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                 if (!importedData.watchedData) {
+                    throw new Error("Backup file is missing 'watchedData'.");
+                }
+                
+                localStorage.setItem(selectedStorageKey, JSON.stringify(importedData.watchedData));
+                loadAllWatchedStates();
+                
+                if(searchBar.value) {
+                     const query = searchBar.value.toLowerCase().trim();
+                     const filteredResults = allMediaData.filter(item => item.title.toLowerCase().includes(query));
+                     displayResults(filteredResults, query);
+                }
+                alert('Progress for ' + selectedStorageKey + ' imported successfully!');
+
+            } catch (err) {
+                console.error("Import failed:", err);
+                alert(`Import failed: ${err.message}`);
+            } finally {
+                event.target.value = '';
+                selectedStorageKey = '';
+                importModal.classList.add('hidden');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+
+    // --- PARTICLE BACKGROUND ---
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    const particleCount = 60;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 0.5;
+            this.vy = (Math.random() - 0.5) * 0.5;
+            this.radius = Math.random() * 1.5 + 0.5;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(79, 70, 229, 0.8)';
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        resizeCanvas();
+        particles = [];
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 150) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(79, 70, 229, ${1 - distance / 150})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(animateParticles);
+    }
+    
+    // --- MOUSE GLOW EFFECT ON PAGE CARDS ---
+    document.querySelectorAll('.page-card').forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        });
+    });
+
+    // --- INITIALIZATION ---
+    window.addEventListener('DOMContentLoaded', () => {
+         window.addEventListener('resize', initParticles);
+         initParticles();
+         animateParticles();
+         loadAllWatchedStates();
+    });
+</script>
+</body>
+</html>

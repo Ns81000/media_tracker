@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#111111">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Franchise Watchlist Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    screens: {
+                        'xxs': '360px',
+                        'xs': '480px',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111;
+            color: #f0f0f0;
+            background-image: url('https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3540&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-blend-mode: overlay;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior: none;
+            touch-action: manipulation;
+        }
+        /* Custom checkbox style */
+        .custom-checkbox {
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.1em;
+            height: 1.1em;
+            border: 0.1em solid currentColor;
+            border-radius: 50%;
+            transform: translateY(-0.075em);
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .custom-checkbox::before {
+            content: "";
+            width: 0.8em;
+            height: 0.8em;
+            border-radius: 50%;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #3498db; /* Light Blue */
+        }
+
+        .custom-checkbox:checked::before {
+            transform: scale(1);
+        }
+        .custom-checkbox:checked {
+            background-color: rgba(52, 152, 219, 0.2);
+            border-color: #3498db; /* Light Blue */
+        }
+        .custom-checkbox:focus {
+            outline: max(2px, 0.15em) solid #3498db; /* Light Blue */
+            outline-offset: max(2px, 0.15em);
+        }
+
+        /* Animation for timeline items */
+        .timeline-item {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+
+        .timeline-item.is-visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* Watched state styling */
+        .watched .series-card {
+            opacity: 0.6;
+            border-left-color: #3498db; /* Light Blue */
+        }
+        .watched .series-title {
+            text-decoration: line-through;
+            text-decoration-color: #3498db; /* Light Blue */
+            text-decoration-thickness: 2px;
+        }
+        .watched .series-card img {
+            filter: grayscale(80%) brightness(0.7);
+        }
+        
+        /* Star field animation */
+        .star {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation-name: twinkle;
+            animation-duration: 4s;
+            animation-iteration-count: infinite;
+            z-index: -1;
+        }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+
+        .text-2xs {
+            font-size: 0.65rem;
+            line-height: 1rem;
+        }
+        
+        /* Aspect ratio container */
+        .aspect-w-16 {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        }
+        
+        .aspect-h-9 {
+            height: 0;
+        }
+        
+        .aspect-w-16 img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Image hover effects */
+        .series-card:hover .series-image {
+            transform: scale(1.05);
+        }
+        
+        /* Franchise header styling */
+        .franchise-header {
+            border-image-slice: 1;
+            border-image-source: linear-gradient(to right, var(--tw-gradient-from), var(--tw-gradient-to));
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto px-2 xs:px-4 py-6 md:py-12">
+        <header class="text-center mb-6 md:mb-10">
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white">
+                Franchise Watchlist Tracker
+            </h1>
+            <p class="mt-2 md:mt-3 text-sm md:text-lg text-gray-400 max-w-3xl mx-auto">
+                An interactive timeline to track your movie marathon progress across different franchises.
+            </p>
+             <div class="flex justify-center items-center mt-3 md:mt-4 space-x-2">
+                <button id="export-progress" class="bg-blue-800 hover:bg-blue-700 text-white text-xs md:text-sm py-1 px-2 md:px-3 rounded">
+                    Save Progress
+                </button>
+                <button id="import-progress" class="bg-gray-700 hover:bg-gray-600 text-white text-xs md:text-sm py-1 px-2 md:px-3 rounded">
+                    Load Progress
+                </button>
+                <input type="file" id="import-file" accept=".json" class="hidden">
+            </div>
+            <div class="mt-4">
+    <a href="index.html" class="inline-block bg-gray-800 hover:bg-gray-700 text-blue-300 font-semibold py-2 px-4 rounded-lg transition-colors duration-300">
+        &larr; Back to Hub
+    </a>
+</div>
+        </header>
+
+        <div id="franchise-container" class="max-w-7xl mx-auto">
+            </div>
+    </div>
+    
+    <div id="status-notification" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 text-sm z-50 flex items-center space-x-2 pointer-events-none">
+    </div>
+    
+    <div id="offline-indicator" class="fixed top-2 right-2 bg-yellow-600 text-black py-1 px-3 rounded-lg text-xs hidden flex items-center z-50">
+        <span class="mr-1">●</span>
+        <span>Offline Mode</span>
+    </div>
+
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden flex items-center justify-center p-4">
+        <div class="relative max-w-4xl w-full">
+            <button id="closeModal" class="absolute -top-12 right-0 text-white text-2xl cursor-pointer hover:text-blue-400 transition-colors">&times; Close</button>
+            <div class="bg-gray-900 rounded-lg overflow-hidden shadow-2xl shadow-blue-500/20 border border-blue-900/30">
+                <div class="relative">
+                    <img id="modalImage" src="" alt="Full size image" class="w-full h-auto max-h-[70vh] object-contain bg-black/50 transition-opacity duration-300 opacity-0">
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-20 pointer-events-none"></div>
+                </div>
+                <div class="p-6 bg-gradient-to-b from-gray-900 to-black">
+                    <h3 id="modalTitle" class="text-2xl text-blue-400 font-bold mb-2"></h3>
+                    <p id="modalDescription" class="text-gray-300"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Create star field background
+        function createStars() {
+            const starCount = 100;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.top = `${Math.random() * 100}vh`;
+                star.style.animationDelay = `${Math.random() * 4}s`;
+                document.body.appendChild(star);
+            }
+        }
+        
+        const franchisesData = {
+          marvel_cinematic_universe: {
+            name: "Marvel Cinematic Universe",
+            color: "from-red-500 to-red-600",
+            items: [
+                { id: 'mcu1', title: 'Agents of S.H.I.E.L.D. season 2', type: 'ABC series', year: '2014-2015' },
+                { id: 'mcu2', title: 'Agent Carter season 1', type: 'ABC series', year: '2015' },
+                { id: 'mcu4', title: 'Agents of S.H.I.E.L.D. season 3', type: 'ABC series', year: '2015-2016' },
+                { id: 'mcu6', title: 'Agent Carter season 2', type: 'ABC series', year: '2016' },               
+                { id: 'mcu8', title: 'Agents of S.H.I.E.L.D. season 4', type: 'ABC series', year: '2016-2017', note: 'Watch Slingshot after S4.E8' },
+                { id: 'mcu9', title: 'Agents of S.H.I.E.L.D.: Slingshot', type: 'Web series', year: '2016' },               
+                { id: 'mcu15', title: 'Runaways season 1', type: 'Young adult series', year: '2017-2018' },
+                { id: 'mcu16', title: 'Agents of S.H.I.E.L.D. season 5', type: 'ABC series', year: '2017-2018' },               
+                { id: 'mcu18', title: 'Cloak & Dagger season 1', type: 'Young adult series', year: '2018' },               
+                { id: 'mcu22', title: 'Runaways season 2', type: 'Young adult series', year: '2018' },               
+                { id: 'mcu24', title: 'Cloak & Dagger season 2', type: 'Young adult series', year: '2019' },
+                { id: 'mcu25', title: 'Agents of S.H.I.E.L.D. season 6', type: 'ABC series', year: '2019' }, 
+                { id: 'mcu27', title: 'Runaways season 3', type: 'Young adult series', year: '2019' },
+                { id: 'mcu28', title: 'Agents of S.H.I.E.L.D. season 7', type: 'ABC series', year: '2020' },
+                { id: 'mcu29', title: 'Helstrom season 1', type: 'Adventure into Fear series', year: '2020' },
+                { id: 'mcu30', title: 'Captain America: Brave New World', type: 'Film', year: '2025' },
+                { id: 'mcu31', title: 'Daredevil: Born Again season 1', type: 'Phase Five series', year: '2025 (Expected)' },
+                { id: 'mcu32', title: 'Thunderbolts*', type: 'Film', year: '2025', alternateImageName: 'Thunderbolts' },
+                { id: 'mcu33', title: 'Ironheart season 1', type: 'Phase Five series', year: '2025 (Expected)' },
+                { id: 'mcu34', title: 'The Fantastic Four', type: 'Film', year: '2025' },
+                { id: 'mcu36', title: 'Marvel Zombies season 1', type: 'Phase Six series', year: '2025 (Expected)' },
+                { id: 'mcu37', title: 'Wonder Man season 1', type: 'Phase Six series', year: '2025 (Expected)' },
+            ],
+          },
+          transformers: {
+            name: "Transformers",
+            color: "from-purple-500 to-indigo-600",
+            items: [
+              { id: 't1', title: 'Transformers: Beginnings', type: 'Short film', year: '2007' },
+              { id: 't2', title: 'Transformers: Cyber Missions', type: 'Web series', year: '2010' },
+              { id: 't3', title: 'Transformers: The Last Knight', type: 'Film', year: '2017' },
+              { id: 't4', title: 'Bumblebee', type: 'Film', year: '2018' },
+              { id: 't5', title: 'Bumblebee\'s First Life on Earth', type: 'Web series', year: '2019' },
+              { id: 't6', title: 'Agent Burns: Welcome to Sector 7', type: 'Short film', year: '2019' },
+              { id: 't7', title: 'Sector 7 Adventures: The Battle at Half Dome', type: 'Short film', year: '2019' },
+              { id: 't8', title: 'Transformers: Rise of the Beasts', type: 'Film', year: '2023' },
+            ],
+          },
+          fast_furious: {
+            name: "Fast & Furious",
+            color: "from-orange-500 to-red-600",
+            items: [
+              { id: 'ff1', title: 'The Turbo Charged Prelude for 2 Fast 2 Furious', type: 'Short film', year: '2003' },
+              { id: 'ff2', title: '2 Fast 2 Furious', type: 'Film', year: '2003' },
+              { id: 'ff3', title: 'The Fast and the Furious: Tokyo Drift', type: 'Film', year: '2006' },
+              { id: 'ff4', title: 'Fast & Furious', type: 'Film', year: '2009' },
+              { id: 'ff5', title: 'Los Bandoleros', type: 'Short film', year: '2009' },
+              { id: 'ff6', title: 'Fast Five', type: 'Film', year: '2011' },
+              { id: 'ff7', title: 'Fast & Furious 6', type: 'Film', year: '2013' },
+              { id: 'ff8', title: 'Furious 7', type: 'Film', year: '2015' },
+              { id: 'ff9', title: 'The Fate of the Furious', type: 'Film', year: '2017' },
+              { id: 'ff10', title: 'Hobbs & Shaw', type: 'Film', year: '2019' },
+              { id: 'ff11', title: 'F9', type: 'Film', year: '2021' },
+              { id: 'ff12', title: 'Fast X', type: 'Film', year: '2023' },
+            ],
+          },
+          jurassic_park: {
+            name: "Jurassic Park",
+            color: "from-green-500 to-teal-600",
+            items: [
+              { id: 'jp2', title: 'Jurassic World: Fallen Kingdom', type: 'Film', year: '2018' },
+              { id: 'jp3', title: 'Battle at Big Rock', type: 'Short film', year: '2019' },
+              { id: 'jp4', title: 'Jurassic World Dominion prologue', type: 'Short film', year: '2021' },
+              { id: 'jp5', title: 'Jurassic World Dominion', type: 'Film', year: '2022' },
+              { id: 'jp6', title: 'Jurassic World Rebirth', type: 'Film', year: '2025' },
+            ],
+          },
+        };
+
+        // Augment data with image paths and descriptions
+        for (const [franchiseKey, franchiseData] of Object.entries(franchisesData)) {
+            franchiseData.items.forEach(item => {
+                // Use the title to find the matching image in the images directory
+                // Handle special characters for image file names
+                const imageTitle = item.title
+                    .replace(/:/g, '')
+                    .replace(/'/g, '\'')
+                    .replace(/\*/g, ''); // Remove asterisks from file names
+                
+                item.image = `images/${imageTitle}.png`;
+                let description = `${item.title} is a ${item.type.toLowerCase()} from ${item.year}.`;
+                if (item.note) {
+                    description += ` Note: ${item.note}`;
+                }
+                item.description = description;
+            });
+        }
+
+        const franchiseContainer = document.getElementById('franchise-container');
+        let watchedState = {};
+        let db;
+        
+        // --- Database and State Management ---
+        
+        function isIndexedDBAvailable() { return 'indexedDB' in window && window.indexedDB !== null; }
+        
+        function initDatabase() {
+            return new Promise((resolve, reject) => {
+                if (!isIndexedDBAvailable()) {
+                    console.warn("IndexedDB not available.");
+                    reject("IndexedDB not available");
+                    return;
+                }
+                const request = window.indexedDB.open("FranchiseTrackerDB", 1);
+                request.onerror = e => { reject("Could not open IndexedDB"); };
+                request.onupgradeneeded = e => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains("watchedItems")) db.createObjectStore("watchedItems");
+                };
+                request.onsuccess = e => {
+                    db = e.target.result;
+                    db.onerror = event => console.error("Database error:", event.target.errorCode);
+                    resolve(db);
+                };
+            });
+        }
+
+        function saveStateToDB() {
+            saveStateToLocalStorage(); // Always save to localStorage as a backup
+            if (!db) return;
+            const transaction = db.transaction(["watchedItems"], "readwrite");
+            transaction.objectStore("watchedItems").put({ ...watchedState, _lastSaved: new Date().toISOString() }, "watchedState");
+        }
+
+        function loadStateFromDB() {
+            if (!db) { loadStateFromLocalStorage(); return; }
+            const request = db.transaction(["watchedItems"], "readonly").objectStore("watchedItems").get("watchedState");
+            request.onsuccess = e => {
+                if (request.result) {
+                    const loadedData = request.result;
+                    delete loadedData._lastSaved;
+                    watchedState = loadedData;
+                } else {
+                    loadStateFromLocalStorage();
+                }
+                renderApp();
+                setupIntersectionObserver();
+            };
+            request.onerror = e => { loadStateFromLocalStorage(); };
+        }
+
+        function loadStateFromLocalStorage() {
+            try {
+                const savedState = localStorage.getItem('franchiseTrackerWatched');
+                watchedState = savedState ? JSON.parse(savedState) : {};
+            } catch (e) {
+                console.error("Could not load from localStorage:", e);
+                watchedState = {};
+            }
+            renderApp();
+            setupIntersectionObserver();
+        }
+
+        function saveStateToLocalStorage() {
+            try {
+                localStorage.setItem('franchiseTrackerWatched', JSON.stringify(watchedState));
+            } catch (e) {
+                console.error("Could not save to localStorage:", e);
+            }
+        }
+        
+        // --- UI Rendering ---
+
+        function renderApp() {
+            franchiseContainer.innerHTML = '';
+            for (const [franchiseKey, franchiseData] of Object.entries(franchisesData)) {
+                // Create franchise section wrapper
+                const franchiseSection = document.createElement('div');
+                franchiseSection.className = 'mb-12';
+
+                // Create and append franchise header
+                const header = document.createElement('h2');
+                const [fromColor, toColor] = franchiseData.color.split(' ');
+                header.className = `franchise-header text-2xl md:text-3xl font-bold text-white mb-4 border-l-4 pl-4`;
+                header.style.setProperty('--tw-gradient-from', `var(--tw-color-${fromColor.replace('from-','')})`);
+                header.style.setProperty('--tw-gradient-to', `var(--tw-color-${toColor.replace('to-','')})`);
+                header.textContent = franchiseData.name;
+                franchiseSection.appendChild(header);
+
+                // Create grid container for items
+                const itemsGrid = document.createElement('div');
+                itemsGrid.className = 'grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4';
+
+                // Loop through items and create cards
+                franchiseData.items.forEach(item => {
+                    const id = item.id;
+                    const isWatched = watchedState[id] || false;
+                    
+                    const seriesItem = document.createElement('div');
+                    seriesItem.className = `timeline-item ${isWatched ? 'watched' : ''}`;
+                    seriesItem.dataset.id = id;
+                    seriesItem.dataset.title = item.title;
+                    seriesItem.dataset.type = item.type;
+                    seriesItem.dataset.description = item.description;
+                    if (item.note) {
+                        seriesItem.dataset.note = item.note;
+                    }
+                    if (item.alternateImageName) {
+                        seriesItem.dataset.alternateImage = item.alternateImageName;
+                    }
+
+                    seriesItem.innerHTML = `
+                        <div class="series-card h-full bg-black bg-opacity-40 backdrop-blur-md rounded-lg shadow-lg border-l-2 border-gray-700 transition-all duration-300 hover:scale-105 hover:shadow-blue-500/20 overflow-hidden flex flex-col">
+                            <div class="relative overflow-hidden bg-gray-800/50">
+                                <div class="aspect-w-16 aspect-h-9 flex items-center justify-center bg-gradient-to-b from-black/30 to-black/10">
+                                    <img src="${item.image}" alt="${item.title}" class="series-image w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy" onerror="this.onerror=null; ${item.alternateImageName ? `this.src='images/${item.alternateImageName}.png';` : ''} this.onerror=null; this.src='https://via.placeholder.com/300x169/1f2937/ffffff?text=${encodeURIComponent(item.title)}';">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-70"></div>
+                                </div>
+                                ${item.note ? `<div class="absolute top-1 right-1 bg-blue-600 text-white text-2xs px-2 py-1 rounded-full" title="${item.note}">Note</div>` : ''}
+                            </div>
+                            <div class="p-3 flex-grow flex flex-col">
+                                <h3 class="series-title text-xs xs:text-sm font-bold text-white leading-tight transition-all duration-300" title="${item.title} - ${item.type}">${item.title}</h3>
+                                <p class="text-2xs xs:text-xs font-medium text-blue-400 truncate mt-1" title="${item.type} • ${item.year}">${item.type} <span class="text-gray-500 mx-1">•</span> ${item.year}</p>
+                                ${item.note ? `<p class="text-2xs mt-1 text-yellow-300" title="${item.note}"><span class="inline-block"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span> ${item.note}</p>` : ''}
+                                <div class="mt-auto pt-2 flex items-center justify-between">
+                                    <label for="checkbox-${id}" class="text-2xs xs:text-xs text-gray-300 cursor-pointer">Watched</label>
+                                    <input type="checkbox" id="checkbox-${id}" class="custom-checkbox" ${isWatched ? 'checked' : ''}>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    itemsGrid.appendChild(seriesItem);
+                });
+                
+                franchiseSection.appendChild(itemsGrid);
+                franchiseContainer.appendChild(franchiseSection);
+            }
+            setupModalListeners();
+        }
+        
+        // --- Event Listeners and Observers ---
+
+        function setupEventListeners() {
+            franchiseContainer.addEventListener('change', (e) => {
+                if (e.target.type === 'checkbox') {
+                    const timelineItem = e.target.closest('.timeline-item');
+                    const id = timelineItem.dataset.id;
+                    if (e.target.checked) {
+                        timelineItem.classList.add('watched');
+                        watchedState[id] = true;
+                        showNotification('Progress saved!', 'success');
+                    } else {
+                        timelineItem.classList.remove('watched');
+                        watchedState[id] = false;
+                    }
+                    saveStateToDB();
+                }
+            });
+        }
+
+        function setupIntersectionObserver() {
+            const items = document.querySelectorAll('.timeline-item');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+            items.forEach(item => observer.observe(item));
+        }
+        
+        // --- Feature: Progress Export/Import ---
+
+        function exportProgress() {
+            const exportData = {
+                appName: "Franchise Watchlist Tracker",
+                version: "1.0",
+                exportDate: new Date().toISOString(),
+                watchedData: watchedState
+            };
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `franchise-progress-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification('Backup saved successfully!', 'success');
+        }
+
+        function importProgress() {
+            const fileInput = document.getElementById('import-file');
+            fileInput.click();
+            fileInput.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (!imported.watchedData || typeof imported.watchedData !== 'object') {
+                            throw new Error('Invalid backup file format.');
+                        }
+                        watchedState = imported.watchedData;
+                        saveStateToDB();
+                        renderApp();
+                        setupIntersectionObserver();
+                        showNotification('Backup loaded successfully!', 'success');
+                    } catch (err) {
+                        showNotification(err.message, 'error');
+                    } finally {
+                        fileInput.value = '';
+                    }
+                };
+                reader.readAsText(file);
+            };
+        }
+
+        function setupProgressControls() {
+            document.getElementById('export-progress').addEventListener('click', exportProgress);
+            document.getElementById('import-progress').addEventListener('click', importProgress);
+        }
+        
+        // --- Feature: Image Modal ---
+        
+        function setupModalListeners() {
+            const modal = document.getElementById('imageModal');
+            const closeModal = document.getElementById('closeModal');
+            const modalImage = document.getElementById('modalImage');
+            
+            franchiseContainer.addEventListener('click', (e) => {
+                if (e.target.closest('.series-image') || e.target.classList.contains('series-image')) {
+                    const image = e.target.closest('.series-image') || e.target;
+                    const item = image.closest('.timeline-item');
+                    
+                    // Show loading state
+                    modalImage.src = '';
+                    modalImage.classList.add('opacity-0');
+                    document.getElementById('modalTitle').textContent = `${item.dataset.title} - ${item.dataset.type}`;
+                    document.getElementById('modalDescription').textContent = item.dataset.description;
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Preload image for smooth transition
+                    const img = new Image();
+                    img.onload = () => {
+                        modalImage.src = image.src;
+                        modalImage.classList.remove('opacity-0');
+                        modalImage.classList.add('opacity-100');
+                    };
+                    img.onerror = () => {
+                        // Try alternate image name if available
+                        if (item.dataset.alternateImage) {
+                            const altImg = new Image();
+                            altImg.onload = () => {
+                                modalImage.src = `images/${item.dataset.alternateImage}.png`;
+                                modalImage.classList.remove('opacity-0');
+                                modalImage.classList.add('opacity-100');
+                            };
+                            altImg.onerror = () => {
+                                modalImage.src = `https://via.placeholder.com/800x450/1f2937/ffffff?text=${encodeURIComponent(item.dataset.title)}`;
+                                modalImage.classList.remove('opacity-0');
+                                modalImage.classList.add('opacity-100');
+                            };
+                            altImg.src = `images/${item.dataset.alternateImage}.png`;
+                        } else {
+                            modalImage.src = `https://via.placeholder.com/800x450/1f2937/ffffff?text=${encodeURIComponent(item.dataset.title)}`;
+                            modalImage.classList.remove('opacity-0');
+                            modalImage.classList.add('opacity-100');
+                        }
+                    };
+                    img.src = image.src;
+                }
+            });
+            
+            const hideModal = () => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+                modalImage.classList.add('opacity-0');
+                modalImage.classList.remove('opacity-100');
+            };
+            
+            closeModal.addEventListener('click', hideModal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
+            
+            // Add keyboard support
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    hideModal();
+                }
+            });
+        }
+        
+        // --- Utilities: Notifications & Connection ---
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('status-notification');
+            if (notification.hideTimeout) clearTimeout(notification.hideTimeout);
+            
+            const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+            const colors = { success: 'bg-green-800', error: 'bg-red-800', info: 'bg-blue-800' };
+            
+            notification.innerHTML = `<span>${icons[type] || ''}</span><span>${message}</span>`;
+            notification.className = notification.className.replace(/bg-\w+-800/g, '') + ` ${colors[type] || 'bg-gray-800'}`;
+            notification.style.opacity = 1;
+            
+            notification.hideTimeout = setTimeout(() => { notification.style.opacity = 0; }, 3000);
+        }
+
+        function setupConnectionHandlers() {
+            const indicator = document.getElementById('offline-indicator');
+            const updateStatus = () => { indicator.classList.toggle('hidden', navigator.onLine); };
+            updateStatus();
+            window.addEventListener('online', () => { showNotification('You are back online', 'success'); updateStatus(); });
+            window.addEventListener('offline', () => { showNotification('Offline mode: Progress saved locally', 'info'); updateStatus(); });
+        }
+        
+        // --- App Initialization ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            
+            initDatabase().then(() => {
+                loadStateFromDB();
+                showNotification('Tracker loaded successfully', 'success');
+            }).catch(error => {
+                console.warn("DB init failed, falling back to localStorage.", error);
+                loadStateFromLocalStorage();
+                showNotification('Using backup storage system', 'info');
+            }).finally(() => {
+                setupEventListeners();
+                setupProgressControls();
+                setupConnectionHandlers();
+                setInterval(saveStateToDB, 30000); // Auto-save every 30 seconds
+                window.addEventListener('beforeunload', saveStateToDB);
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#111111">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Media and Series Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    screens: {
+                        'xxs': '360px',
+                        'xs': '480px',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #f0f0f0;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior: none;
+            touch-action: manipulation;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(1px 1px at 20px 30px, #ffffff, transparent),
+                radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 90px 40px, #ffffff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 160px 30px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 200px 90px, #ffffff, transparent),
+                radial-gradient(1px 1px at 240px 50px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 280px 20px, rgba(255,255,255,0.9), transparent),
+                radial-gradient(1px 1px at 320px 70px, #ffffff, transparent),
+                radial-gradient(1px 1px at 360px 40px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 400px 60px, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1px 1px at 440px 20px, #ffffff, transparent),
+                radial-gradient(1px 1px at 480px 90px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1px 1px at 520px 50px, rgba(255,255,255,0.8), transparent);
+            background-repeat: repeat;
+            background-size: 550px 300px;
+            animation: twinkle 15s ease-in-out infinite;
+            z-index: -2;
+            opacity: 0.8;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.8; }
+            25% { opacity: 0.5; }
+            50% { opacity: 0.9; }
+            75% { opacity: 0.6; }
+        }
+        
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+        }
+        .custom-checkbox {
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1));
+            border: 2px solid rgba(52, 152, 219, 0.3);
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.2em;
+            height: 1.2em;
+            border-radius: 50%;
+            transform: translateY(-0.075em);
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .custom-checkbox::before {
+            content: "";
+            width: 0.7em;
+            height: 0.7em;
+            border-radius: 50%;
+            transform: scale(0);
+            transition: 150ms transform cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            background: linear-gradient(135deg, #3498db, #9b59b6);
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+
+        .custom-checkbox:checked::before {
+            transform: scale(1);
+        }
+        
+        .custom-checkbox:checked {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.3), rgba(155, 89, 182, 0.3));
+            border-color: #3498db;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .custom-checkbox:hover {
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+            transform: translateY(-0.075em) scale(1.05);
+        }
+        
+        .custom-checkbox:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+        }
+
+        .timeline-item {
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .timeline-item.is-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        .watched .series-card {
+            opacity: 0.7;
+            border-image: linear-gradient(135deg, #3498db, #9b59b6) 1;
+            border-width: 2px;
+            border-style: solid;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.05));
+        }
+        
+        .watched .series-title {
+            text-decoration: line-through;
+            text-decoration-color: #3498db;
+            text-decoration-thickness: 2px;
+            opacity: 0.8;
+        }
+        
+        .watched .series-card img {
+            filter: grayscale(40%) brightness(0.8) contrast(1.1);
+        }
+        
+        .text-2xs {
+            font-size: 0.65rem;
+            line-height: 1rem;
+        }
+        
+        .aspect-w-16 {
+            position: relative;
+            padding-bottom: 56.25%;
+        }
+        
+        .aspect-h-9 {
+            height: 0;
+        }
+        
+        .aspect-w-16 img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .series-card:hover .series-image {
+            transform: scale(1.06);
+        }
+        
+        .series-image {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .series-card {
+            background: linear-gradient(135deg, 
+                rgba(10, 10, 15, 0.95) 0%, 
+                rgba(15, 15, 25, 0.90) 50%, 
+                rgba(10, 10, 15, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(40, 40, 60, 0.3);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.7),
+                0 2px 8px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .series-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(52, 152, 219, 0.05) 0%, 
+                rgba(155, 89, 182, 0.02) 50%, 
+                rgba(52, 152, 219, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .series-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.8),
+                0 8px 25px rgba(52, 152, 219, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            border-color: rgba(52, 152, 219, 0.4);
+        }
+        
+        .series-card:hover::before {
+            opacity: 1;
+        }
+        
+        .series-card > * {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .franchise-header {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+        
+        .subcategory-header {
+            color: #e2e8f0;
+            font-weight: 600;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="container mx-auto px-2 xs:px-4 py-6 md:py-12">
+        <header class="text-center mb-6 md:mb-10">
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white">
+                M&S&G
+            </h1>
+            <p class="mt-2 md:mt-3 text-sm md:text-lg text-gray-400 max-w-3xl mx-auto">
+                An interactive timeline to track your media progress.
+            </p>
+             <div class="flex justify-center items-center mt-3 md:mt-4 space-x-2">
+                <button id="export-progress" class="bg-blue-800 hover:bg-blue-700 text-white text-xs md:text-sm py-1 px-2 md:px-3 rounded">
+                    Save Progress
+                </button>
+                <button id="import-progress" class="bg-gray-700 hover:bg-gray-600 text-white text-xs md:text-sm py-1 px-2 md:px-3 rounded">
+                    Load Progress
+                </button>
+                <input type="file" id="import-file" accept=".json" class="hidden">
+            </div>
+            <div class="mt-4">
+    <a href="index.html" class="inline-block bg-gray-800 hover:bg-gray-700 text-blue-300 font-semibold py-2 px-4 rounded-lg transition-colors duration-300">
+        &larr; Back to Hub
+    </a>
+</div>
+        </header>
+
+        <div id="franchise-container" class="max-w-7xl mx-auto">
+            </div>
+    </div>
+    
+    <div id="status-notification" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 text-sm z-50 flex items-center space-x-2 pointer-events-none">
+    </div>
+    
+    <div id="offline-indicator" class="fixed top-2 right-2 bg-yellow-600 text-black py-1 px-3 rounded-lg text-xs hidden flex items-center z-50">
+        <span class="mr-1">●</span>
+        <span>Offline Mode</span>
+    </div>
+
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden flex items-center justify-center p-4">
+        <div class="relative max-w-4xl w-full">
+            <button id="closeModal" class="absolute -top-12 right-0 text-white text-2xl cursor-pointer hover:text-blue-400 transition-colors">&times; Close</button>
+            <div class="bg-gray-900 rounded-lg overflow-hidden shadow-2xl shadow-blue-500/20 border border-blue-900/30">
+                <div class="relative">
+                    <img id="modalImage" src="" alt="Full size image" class="w-full h-auto max-h-[70vh] object-contain bg-black/50 transition-opacity duration-300 opacity-0">
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-20 pointer-events-none"></div>
+                </div>
+                <div class="p-6 bg-gradient-to-b from-gray-900 to-black">
+                    <h3 id="modalTitle" class="text-2xl text-blue-400 font-bold mb-2"></h3>
+                    <p id="modalDescription" class="text-gray-300"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const mediaData = {
+            m_series: {
+                name: 'M Series',
+                subcategories: {
+                    raid: {
+                        name: 'Raid',
+                        items: [
+                            { id: 'raid1', title: 'The Raid: Redemption (2011)', url: 'https://moviesmod.cafe/download-the-raid-redemption-2011-hindi-480p-720p-1080p/', image: 'The Raid Redemption (2011).jpg' },
+                            { id: 'raid2', title: 'The Raid 2 (2014)', url: 'https://moviesmod.cafe/download-the-raid-2-2014-hindi-480p-720p-1080p/', image: 'The Raid 2 (2014).jpg' },
+                        ],
+                    },
+                    human_centipede: {
+                        name: 'The Human Centipede',
+                        items: [
+                            { id: 'hc2', title: 'The Human Centipede II (2011)', url: 'https://moviesmod.cafe/download-the-human-centipede-ii-2011-english-480p-720p/', image: 'The Human Centipede II (2011).jpg' },
+                            { id: 'hc3', title: 'The Human Centipede III (2015)', url: 'https://moviesmod.cafe/download-the-human-centipede-iii-2015-english-480p-720p/', image: 'The Human Centipede III (2015).jpg' },
+                        ],
+                    },
+                    moon: {
+                        name: 'Moon',
+                        items: [
+                            { id: 'moon1', title: 'Rebel Moon – Chapter One: Chalice of Blood (2024)', url: 'https://moviesmod.cafe/download-rebel-moon-chapter-one-chalice-of-blood-2024-directors-cut-hindi-english-480p-720p-1080p/', image: 'Rebel Moon – Chapter One Chalice of Blood (2024).jpg' },
+                            { id: 'moon2', title: 'Rebel Moon – Chapter Two: Curse of Forgiveness (2024)', url: 'https://moviesmod.cafe/download-rebel-moon-chapter-two-curse-of-forgiveness-2024-directors-cut-hindi-english-480p-720p-1080p/', image: 'Rebel Moon – Chapter Two Curse of Forgiveness (2024).jpg' },
+                        ],
+                    },
+                    lion: {
+                        name: 'Lion',
+                        items: [
+                            { id: 'lion1', title: 'The Lion King (2019)', url: 'https://www.imdb.com/title/tt6105098/', image: 'The Lion King (2019).jpg' },
+                            { id: 'lion2', title: 'Mufasa: The Lion King (2024)', url: 'https://www.imdb.com/title/tt13186482/', image: 'Mufasa The Lion King (2024).jpg' },
+                        ],
+                    },
+                },
+            },
+            anime: {
+                name: 'Anime',
+                items: [
+                    { id: 'anime1', title: 'Attack on Titan', url: 'https://www.themoviedb.org/tv/1429', image: 'Attack on Titan.jpg' },
+                    { id: 'anime2', title: 'Demon Slayer: Kimetsu no Yaiba', url: 'https://www.themoviedb.org/tv/85937', image: 'Demon Slayer Kimetsu no Yaiba.jpg' },
+                    { id: 'anime3', title: 'The Place Promised in Our Early Days', url: 'https://www.imdb.com/title/tt0381348/', image: 'The Place Promised in Our Early Days.jpg' },
+                    { id: 'anime4', title: 'Children Who Chase Lost Voices', url: 'https://www.imdb.com/title/tt1839494/', image: 'Children Who Chase Lost Voices.jpg' },
+                    { id: 'anime5', title: 'The Garden of Words (2013)', url: 'https://www.imdb.com/title/tt2591814/', image: 'The Garden of Words (2013).jpg' },
+                    { id: 'anime6', title: 'Weathering with You (2019)', url: 'https://www.imdb.com/title/tt9426210/', image: 'Weathering with You (2019).jpg' },
+                    { id: 'anime7', title: 'To Be Hero X', url: 'https://www.themoviedb.org/tv/272059', image: 'To Be Hero X.jpg' },
+                    { id: 'anime8', title: 'Solo Leveling', url: 'https://www.themoviedb.org/tv/127532', image: 'Solo Leveling.jpg' },
+                    { id: 'anime9', title: 'Sakamoto Days (2025)', url: 'https://www.themoviedb.org/tv/207332', image: 'Sakamoto Days (2025).jpg' },
+                    { id: 'anime10', title: 'The Boy and the Heron (2023)', url: 'https://www.imdb.com/title/tt6587046/', image: 'The Boy and the Heron (2023).jpg' },
+                    { id: 'anime11', title: 'Suzume (2022)', url: 'https://www.imdb.com/title/tt16428256/', image: 'Suzume (2022).jpg' },
+                    { id: 'anime12', title: 'Record of Ragnarok', url: 'https://www.themoviedb.org/tv/114868', image: 'Record of Ragnarok.jpg' },
+                    { id: 'anime13', title: 'Howl’s Moving Castle (2004)', url: 'https://www.imdb.com/title/tt0347149/', image: 'Howl’s Moving Castle (2004).jpg' },
+                    { id: 'anime14', title: '5 Centimeters per Second (2007)', url: 'https://www.imdb.com/title/tt0983213/', image: '5 Centimeters per Second (2007).jpg' },
+                ]
+            },
+            series: {
+                name: 'Series',
+                subcategories: {
+                    links: {
+                        name: 'links',
+                        items: [
+                            { id: 'series1', title: 'Pantheon', url: 'https://www.themoviedb.org/tv/195339', image: 'Pantheon.jpg' },
+                            { id: 'series2', title: 'Ripley', url: 'https://www.themoviedb.org/tv/94028', image: 'Ripley.jpg' },
+                            { id: 'series3', title: 'Slow Horses', url: 'https://www.themoviedb.org/tv/95480', image: 'Slow Horses.jpg' },
+                            { id: 'series4', title: 'The Legend of Vox Machina', url: 'https://www.themoviedb.org/tv/135934', image: 'The Legend of Vox Machina.jpg' },
+                            { id: 'series5', title: 'Blue Eye Samurai', url: 'https://www.themoviedb.org/tv/225180', image: 'Blue Eye Samurai.jpg' },
+                            { id: 'series6', title: 'Cyberpunk: Edgerunners', url: 'https://www.themoviedb.org/tv/105248', image: 'Cyberpunk Edgerunners.jpg' },
+                            { id: 'series7', title: 'The Sopranos', url: 'https://www.themoviedb.org/tv/1398', image: 'The Sopranos.jpg' },
+                            { id: 'series8', title: 'Masters Of The Air', url: 'https://www.themoviedb.org/tv/46518', image: 'Masters Of The Air.jpg' },
+                            { id: 'series9', title: 'Marvel’s Hit-Monkey', url: 'https://www.themoviedb.org/tv/133903', image: 'Marvel’s Hit-Monkey.jpg' },
+                            { id: 'series10', title: 'House of Cards', url: 'https://www.themoviedb.org/tv/1425', image: 'House of Cards.jpg' },
+                            { id: 'series11', title: 'Black Sails', url: 'https://www.themoviedb.org/tv/47665', image: 'Black Sails.jpg' },
+                        ],
+                    },
+                    bat: {
+                        name: 'Bat',
+                        items: [
+                            { id: 'bat1', title: 'DC Animated Universe', url: 'https://en.wikipedia.org/wiki/DC_Animated_Universe', image: 'DC Animated Universe.jpg' },
+                            { id: 'bat2', title: '1.Batman TAS', url: 'https://moviesmod.cafe/download-batman-the-animated-series-season-1-4-english-720p-1080p/', image: '1.Batman TAS.jpg' },
+                            { id: 'bat3', title: '2.Batman: Mask of the Phantasm (1993)', url: 'https://moviesmod.cafe/download-batman-mask-of-the-phantasm-1993-hindi-english-480p-720p-1080p/', image: '2.Batman Mask of the Phantasm (1993).jpg' },
+                        ],
+                    },
+                },
+            },
+            movies: {
+                name: 'Movies',
+                subcategories: {
+                    links: {
+                        name: 'links',
+                        items: [
+                            { id: 'movies1', title: 'Gran Turismo (2023)', url: 'https://www.themoviedb.org/movie/980489', image: 'Gran Turismo.jpg' },
+                            { id: 'movies2', title: 'Fantastic Mr. Fox (2009)', url: 'https://www.themoviedb.org/movie/10315', image: 'Fantastic Mr. Fox.jpg' },
+                            { id: 'movies3', title: 'The Man from U.N.C.L.E. (2015)', url: 'https://www.themoviedb.org/movie/203801', image: 'The Man from U.N.C.L.E..jpg' },
+                        ]
+                    },
+                    give_a_try: {
+                        name: 'give a try',
+                        items: [
+                            { id: 'movies4', title: 'Polytechnique (2009)', url: 'https://www.themoviedb.org/movie/22302', image: 'Polytechnique.jpg' },
+                            { id: 'movies5', title: 'Rush (2013)', url: 'https://www.themoviedb.org/movie/96721', image: 'Rush.jpg' },
+                            { id: 'movies6', title: 'Iratta (2023)', url: 'https://www.themoviedb.org/movie/945167', image: 'Iratta.jpg' },
+                            { id: 'movies7', title: 'God’s Crooked Lines (2022)', url: 'https://www.themoviedb.org/movie/890980', image: 'God’s Crooked Lines.jpg' },
+                            { id: 'movies8', title: 'True Romance (1993)', url: 'https://www.themoviedb.org/movie/319', image: 'True Romance.jpg' },
+                        ]
+                    },
+                    slasher: {
+                        name: 'slasher',
+                        items: [
+                            { id: 'movies9', title: 'The Sadness (2021)', url: 'https://www.imdb.com/title/tt13872248/', image: 'The Sadness (2021).jpg' },
+                            { id: 'movies10', title: 'Saw (2004)', url: 'https://www.themoviedb.org/movie/176', image: 'Saw.jpg' },
+                        ]
+                    },
+                    feel_good: {
+                        name: 'feel good',
+                        items: [
+                            { id: 'movies11', title: 'The Life of Chuck (2024)', url: 'https://www.themoviedb.org/movie/842924', image: 'The Life of Chuck.jpg' },
+                            { id: 'movies12', title: 'Our Friend (2019)', url: 'https://www.themoviedb.org/movie/583903', image: 'Our Friend.jpg' },
+                        ]
+                    },
+                    horror: {
+                        name: 'horror',
+                        items: [
+                            { id: 'movies13', title: 'Midsommar (2019)', url: 'https://www.themoviedb.org/movie/530385', image: 'Midsommar.jpg' },
+                            { id: 'movies14', title: 'Exhuma (2024)', url: 'https://www.themoviedb.org/movie/838209', image: 'Exhuma.jpg' },
+                        ]
+                    },
+                    compulsory: {
+                        name: 'compulsory',
+                        items: [
+                            { id: 'movies15', title: 'The Shawshank Redemption (1994)', url: 'https://www.themoviedb.org/movie/278', image: 'The Shawshank Redemption.jpg' },
+                            { id: 'movies16', title: 'Se7en (1995)', url: 'https://www.themoviedb.org/movie/807', image: 'Se7en.jpg' },
+                            { id: 'movies17', title: '2001: A Space Odyssey', url: 'https://www.themoviedb.org/movie/62', image: '2001 A Space Odyssey.jpg' },
+                            { id: 'movies18', title: 'The Devil’s Advocate (1997)', url: 'https://www.themoviedb.org/movie/1813', image: 'The Devil’s Advocate.jpg' },
+                            { id: 'movies19', title: 'BlackBerry (2023)', url: 'https://www.themoviedb.org/movie/1016084', image: 'BlackBerry.jpg' },
+                            { id: 'movies20', title: 'The Lincoln Lawyer (2011)', url: 'https://www.themoviedb.org/movie/50348', image: 'The Lincoln Lawyer.jpg' },
+                            { id: 'movies21', title: 'Taken (2008)', url: 'https://www.themoviedb.org/movie/8681', image: 'Taken.jpg' },
+                            { id: 'movies22', title: 'Society Of The Snow (2024)', url: 'https://www.themoviedb.org/movie/906126', image: 'Society Of The Snow.jpg' },
+                            { id: 'movies23', title: 'Silence (2016)', url: 'https://www.imdb.com/title/tt0490215/', image: 'Silence (2016).jpg' },
+                            { id: 'movies24', title: 'The Usual Suspects (1995)', url: 'https://www.themoviedb.org/movie/629', image: 'The Usual Suspects.jpg' },
+                            { id: 'movies25', title: 'Children of Men (2006)', url: 'https://www.themoviedb.org/movie/9693', image: 'Children of Men.jpg' },
+                            { id: 'movies26', title: 'Primer (2004)', url: 'https://www.themoviedb.org/movie/14337', image: 'Primer.jpg' },
+                            { id: 'movies27', title: 'Slumdog Millionaire (2008)', url: 'https://www.themoviedb.org/movie/12405', image: 'Slumdog Millionaire.jpg' },
+                            { id: 'movies28', title: 'Mahavatar Narsimha', url: 'https://www.themoviedb.org/movie/1383072', image: 'Mahavatar Narsimha.jpg' },
+                            { id: 'movies29', title: 'Sicario (2015)', url: 'https://www.themoviedb.org/movie/273481', image: 'Sicario.jpg' },
+                            { id: 'movies30', title: 'The Assassination of Jesse James by the Coward Robert Ford (2007)', url: 'https://www.themoviedb.org/movie/4512', image: 'The Assassination of Jesse James by the Coward Robert Ford.jpg' },
+                            { id: 'movies31', title: 'The Aviator (2004)', url: 'https://www.themoviedb.org/movie/2567', image: 'The Aviator.jpg' },
+                            { id: 'movies32', title: 'Whiplash (2014)', url: 'https://www.themoviedb.org/movie/244786', image: 'Whiplash.jpg' },
+                            { id: 'movies33', title: 'The Social Network (2010)', url: 'https://www.themoviedb.org/movie/37799', image: 'The Social Network.jpg' },
+                            { id: 'movies34', title: 'The Pursuit of Happyness (2006)', url: 'https://www.themoviedb.org/movie/1402', image: 'The Pursuit of Happyness.jpg' },
+                            { id: 'movies35', title: 'The Killer (2023)', url: 'https://www.imdb.com/title/tt1136617/', image: 'The Killer (2023).jpg' },
+                            { id: 'movies36', title: 'The Great Gatsby (2013)', url: 'https://www.themoviedb.org/movie/64682', image: 'The Great Gatsby.jpg' },
+                            { id: 'movies37', title: 'Schindler’s List (1993)', url: 'https://www.themoviedb.org/movie/424', image: 'Schindler’s List.jpg' },
+                            { id: 'movies38', title: 'Saving Private Ryan (1998)', url: 'https://www.themoviedb.org/movie/857', image: 'Saving Private Ryan.jpg' },
+                            { id: 'movies39', title: 'Memories of Murder (2003)', url: 'https://www.themoviedb.org/movie/11423', image: 'Memories of Murder.jpg' },
+                            { id: 'movies40', title: 'Memento (2000)', url: 'https://www.themoviedb.org/movie/77', image: 'Memento.jpg' },
+                            { id: 'movies41', title: 'Marco (2024)', url: 'https://www.imdb.com/title/tt29383379/', image: 'Marco (2024).jpg' },
+                            { id: 'movies42', title: 'Maanaadu (2021)', url: 'https://www.themoviedb.org/movie/535156', image: 'Maanaadu.jpg' },
+                            { id: 'movies43', title: 'Léon: The Professional (1994)', url: 'https://www.themoviedb.org/movie/101', image: 'Léon The Professional.jpg' },
+                            { id: 'movies44', title: 'The Girl with the Dragon Tattoo (2011)', url: 'https://www.themoviedb.org/movie/65754', image: 'The Girl with the Dragon Tattoo.jpg' },
+                            { id: 'movies45', title: 'Final Destination: Bloodlines (2025)', url: 'https://www.themoviedb.org/movie/574475', image: 'Final Destination Bloodlines.jpg' },
+                            { id: 'movies46', title: 'Catch Me If You Can (2002)', url: 'https://www.themoviedb.org/movie/640', image: 'Catch Me If You Can.jpg' },
+                        ]
+                    },
+                    spy: { name: 'spy', items: [{ id: 'movies47', title: 'Black Bag (2025)', url: 'https://www.themoviedb.org/movie/1233575', image: 'Black Bag.jpg' }] },
+                    sci_fi: {
+                        name: 'sci-fi',
+                        items: [
+                            { id: 'movies48', title: 'District 9 (2009)', url: 'https://www.themoviedb.org/movie/17654', image: 'District 9.jpg' },
+                            { id: 'movies49', title: 'Annihilation (2018)', url: 'https://www.themoviedb.org/movie/300668', image: 'Annihilation.jpg' },
+                        ]
+                    },
+                    classic: {
+                        name: 'Classic',
+                        items: [
+                            { id: 'movies50', title: 'GoodFellas', url: 'https://www.themoviedb.org/movie/769', image: 'GoodFellas.jpg' },
+                            { id: 'movies51', title: 'Lawrence of Arabia', url: 'https://www.themoviedb.org/movie/947', image: 'Lawrence of Arabia.jpg' },
+                            { id: 'movies52', title: 'Cleopatra (1963)', url: 'https://www.themoviedb.org/movie/39950', image: 'Cleopatra.jpg' },
+                            { id: 'movies53', title: 'Heat (1995)', url: 'https://www.themoviedb.org/movie/949', image: 'Heat.jpg' },
+                            { id: 'movies54', title: 'Pulp Fiction (1994)', url: 'https://www.themoviedb.org/movie/680', image: 'Pulp Fiction.jpg' },
+                            { id: 'movies55', title: 'Insomnia (2002)', url: 'https://www.themoviedb.org/movie/320', image: 'Insomnia.jpg' },
+                            { id: 'movies56', title: 'Following (1998)', url: 'https://www.themoviedb.org/movie/11660', image: 'Following.jpg' },
+                            { id: 'movies57', title: '...And Justice for All (1979)', url: 'https://www.themoviedb.org/movie/17443', image: 'And Justice for All.jpg' },
+                        ]
+                    },
+                    comedy: { name: 'Comedy', items: [{ id: 'movies58', title: 'The Grand Budapest Hotel (2014)', url: 'https://www.themoviedb.org/movie/120467', image: 'The Grand Budapest Hotel.jpg' }] },
+                    a_plus_comedy: {
+                        name: 'A+ Comedy',
+                        items: [
+                            { id: 'movies59', title: 'Lock, Stock and Two Smoking Barrels (1998)', url: 'https://www.themoviedb.org/movie/100', image: 'Lock, Stock and Two Smoking Barrels.jpg' },
+                            { id: 'movies60', title: 'Snatch (2000)', url: 'https://www.themoviedb.org/movie/107', image: 'Snatch.jpg' },
+                            { id: 'movies61', title: 'Anyone But You (2023)', url: 'https://www.themoviedb.org/movie/1072790', image: 'Anyone But You.jpg' },
+                            { id: 'movies62', title: '21 Jump Street (2012)', url: 'https://www.themoviedb.org/movie/64688', image: '21 Jump Street.jpg' },
+                        ]
+                    }
+                }
+            },
+            down_games: {
+                name: 'Down (Games)',
+                subcategories: {
+                    links: {
+                        name: 'links',
+                        items: [
+                            { id: 'games1', title: 'Red dead redemption', url: 'https://dodi-repacks.site/red-dead-redemption/', image: 'Red dead redemption.jpg' },
+                            { id: 'games2', title: 'Assassin\'s Creed: Unity - v1.5.0 + All DLCs - FitGirl Repacks', url: 'https://fitgirl-repacks.site/assassins-creed-unity-v1-5-0-dlcs/', image: 'Assassin\'s Creed Unity - v1.5.0 + All DLCs - FitGirl Repacks.jpg' },
+                            { id: 'games3', title: 'Watch Dogs v1.06.329 + All DLCs - FitGirl Repacks', url: 'https://fitgirl-repacks.site/watch-dogs-v1-06-329-all-dlcs/', image: 'Watch Dogs v1.06.329 + All DLCs - FitGirl Repacks.jpg' },
+                            { id: 'games4', title: 'L.A. Noire: The Complete Edition - v2675.1 + All DLCs - FitGirl Repacks', url: 'https://fitgirl-repacks.site/la-noire/', image: 'L.A. Noire The Complete Edition - v2675.1 + All DLCs - FitGirl Repacks.jpg' },
+                            { id: 'games5', title: '486 call of juarez gunslinger update v1 05 dlcs multi9 dodi repack', url: 'https://dodi-repacks.site/486-call-of-juarez-gunslinger-update-v1-05-dlcs-multi9-dodi-repack/', image: '486 call of juarez gunslinger update v1 05 dlcs multi9 dodi repack.jpg' },
+                            { id: 'games6', title: 'Alan Wake: Collector\'s Edition - v1.07.33.72514 + 2 DLCs + Bonus Content - FitGirl Repacks', url: 'https://fitgirl-repacks.site/alan-wake-collectors-edition/', image: 'Alan Wake Collector\'s Edition - v1.07.33.72514 + 2 DLCs + Bonus Content - FitGirl Repacks.jpg' },
+                            { id: 'games7', title: 'Download Alien: Isolation – Complete Edition (Update 8 + DLCs)', url: 'https://gamesleech.com/alien-isolation/', image: 'Download Alien Isolation – Complete Edition (Update 8 + DLCs).jpg' },
+                            { id: 'games8', title: 'HITMAN 2: Gold Edition - v2.70.1 + All DLCs - FitGirl Repacks', url: 'https://fitgirl-repacks.site/hitman-2/', image: 'HITMAN 2 Gold Edition - v2.70.1 + All DLCs - FitGirl Repacks.jpg' },
+                            { id: 'games9', title: 'Metro Redux (2033 + Last Light) - GOG v2.0.0.2 + Update 7 - FitGirl Repacks', url: 'https://fitgirl-repacks.site/metro-redux/', image: 'Metro Redux (2033 + Last Light) - GOG v2.0.0.2 + Update 7 - FitGirl Repacks.jpg' },
+                            { id: 'games10', title: 'THIEF: Definitive Edition - v1.7 GOG + All DLCs + Bonus Content - FitGirl Repacks', url: 'https://fitgirl-repacks.site/thief-definitive-edition/', image: 'THIEF Definitive Edition - v1.7 GOG + All DLCs + Bonus Content - FitGirl Repacks.jpg' },
+                            { id: 'games11', title: 'The Saboteur (GOG, DRM-Free) - FitGirl Repacks', url: 'https://fitgirl-repacks.site/saboteur-gog-drm-free/', image: 'The Saboteur (GOG, DRM-Free) - FitGirl Repacks.jpg' },
+                            { id: 'games12', title: 'Deadpool - FitGirl Repacks', url: 'https://fitgirl-repacks.site/deadpool/', image: 'Deadpool - FitGirl Repacks.jpg' },
+                            { id: 'games13', title: 'Injustice: Gods Among Us', url: 'https://pc-games.eu.org/apps/injustice-gods-among-us', image: 'Injustice Gods Among Us.jpg' },
+                            { id: 'games14', title: 'Mortal Kombat (2011)', url: 'https://pc-games.eu.org/apps/mortal-kombat-2011', image: 'Mortal Kombat (2011).jpg' },
+                            { id: 'games15', title: 'The Amazing Spider-Man (2012)', url: 'https://en.wikipedia.org/wiki/The_Amazing_Spider-Man_(2012_video_game)', image: 'The Amazing Spider-Man (2012).jpg' },
+                            { id: 'games16', title: 'Far Cry Primal', url: 'https://en.wikipedia.org/wiki/Far_Cry_Primal', image: 'Far Cry Primal.jpg' },
+                            { id: 'games17', title: 'Manhunt', url: 'https://en.wikipedia.org/wiki/Manhunt_(video_game)', image: 'Manhunt.jpg' },
+                            { id: 'games18', title: 'Total Overdose', url: 'https://en.wikipedia.org/wiki/Total_Overdose', image: 'Total Overdose.jpg' },
+                        ],
+                    },
+                    saint_row_3: {
+                        name: 'Saint Row 3',
+                        items: [
+                            { id: 'games19', title: 'Saints Row: The Third – Remastered, v20211028 (Epic Store) + All DLCs + LAN Multiplayer', url: 'https://fitgirl-repacks.site/saints-row-the-third-remastered/', image: 'Saints Row The Third – Remastered, v20211028 (Epic Store) + All DLCs + LAN Multiplayer.jpg' },
+                            { id: 'games20', title: 'Saints Row: The Third – The Full Package Free Download', url: 'https://gogunlocked.com/1-saints-row-the-third-the-full-package-free-download/', image: 'Saints Row The Third – The Full Package Free Download.jpg' },
+                        ],
+                    },
+                    evil: {
+                        name: 'Evil',
+                        items: [
+                            { id: 'games21', title: '1._1109 resident evil 0 biohazard 0 hd remaster...', url: 'https://dodi-repacks.site/1109-resident-evil-0-biohazard-0-hd-remaster-all-dlcs-multi6-from-4-7-gb-dodi-repack/', image: '1._1109 resident evil 0 biohazard 0 hd remaster....jpg' },
+                            { id: 'games22', title: '2._1110 resident evil biohazard hd remaster...', url: 'https://dodi-repacks.site/1110-resident-evil-biohazard-hd-remaster-multi6-from-4-7-gb-dodi-repack/', image: '2._1110 resident evil biohazard hd remaster....jpg' },
+                            { id: 'games23', title: '3._1357 resident evil 2 biohazard re2 deluxe edition...', url: 'https://dodi-repacks.site/1357-resident-evil-2-biohazard-re2-deluxe-edition-v1-0-build-8814181-dx12-update-all-dlcs-bonus-content-multi14-from-17-1-gb-dodi-repack/', image: '3._1357 resident evil 2 biohazard re2 deluxe edition....jpg' },
+                        ],
+                    },
+                }
+            },
+            franchise: {
+                name: 'Franchise',
+                items: [
+                    { id: 'franchise1', title: 'The Hunger Games (franchise)', url: 'https://en.wikipedia.org/wiki/The_Hunger_Games_(franchise)', image: 'The Hunger Games (franchise).jpg' },
+                    { id: 'franchise2', title: 'The Matrix (franchise) - Wikipedia', url: 'https://en.m.wikipedia.org/wiki/The_Matrix_(franchise)', image: 'The Matrix (franchise) - Wikipedia.jpg' },
+                    { id: 'franchise3', title: 'Terrifier (film series)', url: 'https://en.wikipedia.org/wiki/Terrifier_(film_series)', image: 'Terrifier (film series).jpg' },
+                    { id: 'franchise4', title: 'Terminator (franchise)', url: 'https://en.wikipedia.org/wiki/Terminator_(franchise)', image: 'Terminator (franchise).jpg' },
+                    { id: 'franchise5', title: 'Outline of the Marvel Cinematic Universe', url: 'https://en.wikipedia.org/wiki/Outline_of_the_Marvel_Cinematic_Universe', image: 'Outline of the Marvel Cinematic Universe.jpg' },
+                ]
+            },
+            hotey: {
+                name: 'Hotey',
+                subcategories: {
+                    romance: {
+                        name: 'Romance',
+                        items: [
+                            { id: 'hotey1', title: 'Little Children (2006)', url: 'https://www.themoviedb.org/movie/1440', image: 'Little Children.jpg' },
+                            { id: 'hotey2', title: 'The Sleeping Dictionary (2003)', url: 'https://www.themoviedb.org/movie/25988', image: 'The Sleeping Dictionary.jpg' },
+                        ]
+                    },
+                    comedy: {
+                        name: 'Comedy',
+                        items: [
+                            { id: 'hotey3', title: 'Love & Other Drugs (2010)', url: 'https://www.imdb.com/title/tt0758752/', image: 'Love & Other Drugs (2010).jpg' },
+                            { id: 'hotey4', title: 'No Hard Feelings (2023)', url: 'https://www.themoviedb.org/movie/884605', image: 'No Hard Feelings.jpg' },
+                        ]
+                    },
+                    indian: { name: 'Indian', items: [{ id: 'hotey5', title: 'Kannappa', url: 'https://www.imdb.com/title/tt5306972/', image: 'Kannappa.jpg' }] },
+                    thriller: {
+                        name: 'Thriller',
+                        items: [
+                            { id: 'hotey6', title: 'Original Sin (2001)', url: 'https://www.themoviedb.org/movie/2057', image: 'Original Sin.jpg' },
+                            { id: 'hotey7', title: 'Voice from the Stone (2017)', url: 'https://www.themoviedb.org/movie/301372', image: 'Voice from the Stone.jpg' },
+                            { id: 'hotey8', title: 'Taking Lives (2004)', url: 'https://www.themoviedb.org/movie/11081', image: 'Taking Lives.jpg' },
+                            { id: 'hotey9', title: 'Basic Instinct (1992)', url: 'https://www.themoviedb.org/movie/402', image: 'Basic Instinct.jpg' },
+                        ]
+                    }
+                }
+            }
+        };
+        
+
+        const franchiseContainer = document.getElementById('franchise-container');
+        let watchedState = {};
+        let db;
+        
+        // --- Particle Background ---
+        function createParticleBackground() {
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            const particleCount = 120;
+
+            const resizeCanvas = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 0.8;
+                    this.vy = (Math.random() - 0.5) * 0.8;
+                    this.radius = Math.random() * 2 + 0.5;
+                    this.opacity = Math.random() * 0.8 + 0.2;
+                    this.life = Math.random() * 200 + 100;
+                    this.maxLife = this.life;
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.life--;
+
+                    if (this.life <= 0) {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.life = this.maxLife;
+                    }
+
+                    if (this.x < 0) this.x = canvas.width;
+                    if (this.x > canvas.width) this.x = 0;
+                    if (this.y < 0) this.y = canvas.height;
+                    if (this.y > canvas.height) this.y = 0;
+                }
+
+                draw() {
+                    const lifeRatio = this.life / this.maxLife;
+                    const alpha = this.opacity * lifeRatio;
+                    
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                    gradient.addColorStop(0, `rgba(52, 152, 219, ${alpha})`);
+                    gradient.addColorStop(0.5, `rgba(155, 89, 182, ${alpha * 0.7})`);
+                    gradient.addColorStop(1, `rgba(52, 152, 219, 0)`);
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                }
+            }
+
+            const init = () => {
+                resizeCanvas();
+                particles = [];
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push(new Particle());
+                }
+            };
+
+            const connectParticles = () => {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 120) {
+                            const opacity = (1 - distance / 120) * 0.3;
+                            const gradient = ctx.createLinearGradient(
+                                particles[i].x, particles[i].y,
+                                particles[j].x, particles[j].y
+                            );
+                            gradient.addColorStop(0, `rgba(52, 152, 219, ${opacity})`);
+                            gradient.addColorStop(0.5, `rgba(155, 89, 182, ${opacity * 0.8})`);
+                            gradient.addColorStop(1, `rgba(52, 152, 219, ${opacity})`);
+                            
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = gradient;
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            };
+
+            const animate = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                connectParticles();
+                requestAnimationFrame(animate);
+            };
+
+            window.addEventListener('resize', init);
+            init();
+            animate();
+        }
+
+        // --- Database and State Management ---
+        
+        function isIndexedDBAvailable() { return 'indexedDB' in window && window.indexedDB !== null; }
+        
+        function initDatabase() {
+            return new Promise((resolve, reject) => {
+                if (!isIndexedDBAvailable()) {
+                    console.warn("IndexedDB not available.");
+                    reject("IndexedDB not available");
+                    return;
+                }
+                const request = window.indexedDB.open("MediaTrackerDB", 1);
+                request.onerror = e => { reject("Could not open IndexedDB"); };
+                request.onupgradeneeded = e => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains("watchedItems")) db.createObjectStore("watchedItems");
+                };
+                request.onsuccess = e => {
+                    db = e.target.result;
+                    db.onerror = event => console.error("Database error:", event.target.errorCode);
+                    resolve(db);
+                };
+            });
+        }
+
+        function saveStateToDB() {
+            saveStateToLocalStorage();
+            if (!db) return;
+            const transaction = db.transaction(["watchedItems"], "readwrite");
+            transaction.objectStore("watchedItems").put({ ...watchedState, _lastSaved: new Date().toISOString() }, "watchedState");
+        }
+
+        function loadStateFromDB() {
+            if (!db) { loadStateFromLocalStorage(); return; }
+            const request = db.transaction(["watchedItems"], "readonly").objectStore("watchedItems").get("watchedState");
+            request.onsuccess = e => {
+                if (request.result) {
+                    const loadedData = request.result;
+                    delete loadedData._lastSaved;
+                    watchedState = loadedData;
+                } else {
+                    loadStateFromLocalStorage();
+                }
+                renderApp();
+                setupIntersectionObserver();
+            };
+            request.onerror = e => { loadStateFromLocalStorage(); };
+        }
+
+        function loadStateFromLocalStorage() {
+            try {
+                const savedState = localStorage.getItem('mediaTrackerWatched');
+                watchedState = savedState ? JSON.parse(savedState) : {};
+            } catch (e) {
+                console.error("Could not load from localStorage:", e);
+                watchedState = {};
+            }
+            renderApp();
+            setupIntersectionObserver();
+        }
+
+        function saveStateToLocalStorage() {
+            try {
+                localStorage.setItem('mediaTrackerWatched', JSON.stringify(watchedState));
+            } catch (e) {
+                console.error("Could not save to localStorage:", e);
+            }
+        }
+        
+        // --- UI Rendering ---
+
+        function renderApp() {
+            franchiseContainer.innerHTML = '';
+
+            for (const [categoryKey, categoryData] of Object.entries(mediaData)) {
+                const categorySection = document.createElement('div');
+                categorySection.className = 'mb-12';
+
+                const header = document.createElement('h2');
+                header.className = 'franchise-header text-2xl md:text-3xl font-bold text-white mb-6';
+                header.textContent = categoryData.name;
+                categorySection.appendChild(header);
+
+                const renderItems = (items, container) => {
+                    const itemsGrid = document.createElement('div');
+                    itemsGrid.className = 'grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6';
+                    items.forEach(item => {
+                        const id = item.id;
+                        const isWatched = watchedState[id] || false;
+                        
+                        const seriesItem = document.createElement('div');
+                        seriesItem.className = `timeline-item ${isWatched ? 'watched' : ''}`;
+                        seriesItem.dataset.id = id;
+                        seriesItem.dataset.title = item.title;
+                        seriesItem.dataset.description = `${item.title}`;
+
+                        seriesItem.innerHTML = `
+                            <div class="series-card h-full rounded-xl shadow-lg transition-all duration-300 overflow-hidden flex flex-col group">
+                                <div class="relative overflow-hidden bg-gradient-to-b from-gray-900/50 to-black/70">
+                                    <div class="aspect-w-16 aspect-h-9 flex items-center justify-center">
+                                        <img src="images/${item.image}" alt="${item.title}" class="series-image w-full h-full object-cover transition-all duration-500" loading="lazy" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x169/0f0f19/ffffff?text=${encodeURIComponent(item.title.substring(0, 20))}';">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-300"></div>
+                                    </div>
+                                    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse shadow-lg"></div>
+                                    </div>
+                                </div>
+                                <div class="p-4 flex-grow flex flex-col bg-gradient-to-b from-transparent to-black/40">
+                                    <h3 class="series-title text-sm font-bold text-white leading-tight transition-all duration-300 mb-3 group-hover:text-blue-200" title="${item.title}">${item.title}</h3>
+                                    <div class="mt-auto pt-2 flex items-center justify-between space-x-3">
+                                        <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="text-xs text-blue-400 hover:text-blue-300 hover:underline flex-shrink-0 transition-colors duration-200 font-medium">View</a>
+                                        <div class="flex items-center space-x-2 flex-shrink-0">
+                                           <label for="checkbox-${id}" class="text-xs text-gray-300 cursor-pointer hover:text-white transition-colors duration-200 font-medium">Watched</label>
+                                           <input type="checkbox" id="checkbox-${id}" class="custom-checkbox" ${isWatched ? 'checked' : ''}>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        itemsGrid.appendChild(seriesItem);
+                    });
+                    container.appendChild(itemsGrid);
+                };
+
+                if (categoryData.items) {
+                    renderItems(categoryData.items, categorySection);
+                }
+
+                if (categoryData.subcategories) {
+                    for (const [subKey, subData] of Object.entries(categoryData.subcategories)) {
+                        const subHeader = document.createElement('h3');
+                        subHeader.className = 'subcategory-header text-lg font-semibold mb-4 mt-6';
+                        subHeader.textContent = subData.name;
+                        categorySection.appendChild(subHeader);
+                        renderItems(subData.items, categorySection);
+                    }
+                }
+                
+                franchiseContainer.appendChild(categorySection);
+            }
+            setupModalListeners();
+        }
+        
+        // --- Event Listeners and Observers ---
+
+        function setupEventListeners() {
+            franchiseContainer.addEventListener('change', (e) => {
+                if (e.target.type === 'checkbox') {
+                    const timelineItem = e.target.closest('.timeline-item');
+                    const id = timelineItem.dataset.id;
+                    if (e.target.checked) {
+                        timelineItem.classList.add('watched');
+                        watchedState[id] = true;
+                        showNotification('Progress saved!', 'success');
+                    } else {
+                        timelineItem.classList.remove('watched');
+                        watchedState[id] = false;
+                    }
+                    saveStateToDB();
+                }
+            });
+        }
+
+        function setupIntersectionObserver() {
+            const items = document.querySelectorAll('.timeline-item');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+            items.forEach(item => observer.observe(item));
+        }
+        
+        // --- Feature: Progress Export/Import ---
+
+        function exportProgress() {
+            const exportData = {
+                appName: "Media Watchlist Tracker",
+                version: "1.0",
+                exportDate: new Date().toISOString(),
+                watchedData: watchedState
+            };
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `media-progress-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification('Backup saved successfully!', 'success');
+        }
+
+        function importProgress() {
+            const fileInput = document.getElementById('import-file');
+            fileInput.click();
+            fileInput.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (!imported.watchedData || typeof imported.watchedData !== 'object') {
+                            throw new Error('Invalid backup file format.');
+                        }
+                        watchedState = imported.watchedData;
+                        saveStateToDB();
+                        renderApp();
+                        setupIntersectionObserver();
+                        showNotification('Backup loaded successfully!', 'success');
+                    } catch (err) {
+                        showNotification(err.message, 'error');
+                    } finally {
+                        fileInput.value = '';
+                    }
+                };
+                reader.readAsText(file);
+            };
+        }
+
+        function setupProgressControls() {
+            document.getElementById('export-progress').addEventListener('click', exportProgress);
+            document.getElementById('import-progress').addEventListener('click', importProgress);
+        }
+        
+        // --- Feature: Image Modal ---
+        
+        function setupModalListeners() {
+            const modal = document.getElementById('imageModal');
+            const closeModal = document.getElementById('closeModal');
+            const modalImage = document.getElementById('modalImage');
+            
+            franchiseContainer.addEventListener('click', (e) => {
+                if (e.target.closest('.series-image') || e.target.classList.contains('series-image')) {
+                    const image = e.target.closest('.series-image') || e.target;
+                    const item = image.closest('.timeline-item');
+                    
+                    modalImage.src = '';
+                    modalImage.classList.add('opacity-0');
+                    document.getElementById('modalTitle').textContent = item.dataset.title;
+                    document.getElementById('modalDescription').textContent = item.dataset.description;
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                    
+                    const img = new Image();
+                    img.onload = () => {
+                        modalImage.src = image.src;
+                        modalImage.classList.remove('opacity-0');
+                    };
+                    img.onerror = () => {
+                        modalImage.src = `https://via.placeholder.com/800x450/1f2937/ffffff?text=${encodeURIComponent(item.dataset.title)}`;
+                        modalImage.classList.remove('opacity-0');
+                    };
+                    img.src = image.src;
+                }
+            });
+            
+            const hideModal = () => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+                modalImage.classList.add('opacity-0');
+            };
+            
+            closeModal.addEventListener('click', hideModal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    hideModal();
+                }
+            });
+        }
+        
+        // --- Utilities: Notifications & Connection ---
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('status-notification');
+            if (notification.hideTimeout) clearTimeout(notification.hideTimeout);
+            
+            const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+            const colors = { success: 'bg-green-800', error: 'bg-red-800', info: 'bg-blue-800' };
+            
+            notification.innerHTML = `<span>${icons[type] || ''}</span><span>${message}</span>`;
+            notification.className = notification.className.replace(/bg-\w+-800/g, '') + ` ${colors[type] || 'bg-gray-800'}`;
+            notification.style.opacity = 1;
+            
+            notification.hideTimeout = setTimeout(() => { notification.style.opacity = 0; }, 3000);
+        }
+
+        function setupConnectionHandlers() {
+            const indicator = document.getElementById('offline-indicator');
+            const updateStatus = () => { indicator.classList.toggle('hidden', navigator.onLine); };
+            updateStatus();
+            window.addEventListener('online', () => { showNotification('You are back online', 'success'); updateStatus(); });
+            window.addEventListener('offline', () => { showNotification('Offline mode: Progress saved locally', 'info'); updateStatus(); });
+        }
+        
+        // --- App Initialization ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticleBackground();
+            
+            initDatabase().then(() => {
+                loadStateFromDB();
+                showNotification('Tracker loaded successfully', 'success');
+            }).catch(error => {
+                console.warn("DB init failed, falling back to localStorage.", error);
+                loadStateFromLocalStorage();
+                showNotification('Using backup storage system', 'info');
+            }).finally(() => {
+                setupEventListeners();
+                setupProgressControls();
+                setupConnectionHandlers();
+                setInterval(saveStateToDB, 30000);
+                window.addEventListener('beforeunload', saveStateToDB);
+            });
+        });
+    </script>
+
+</body>
+</html>
