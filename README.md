@@ -3,7 +3,7 @@
 Your personal corner of the cosmos for tracking every movie and series you love. ✨
 
 <p align="center">
-  <img src="images/mian_page.png" alt="Media Universe Hub Main Page" width="700"/>
+  <img src="images/mian_page.jpg" alt="Media Universe Hub Main Page" width="700"/>
 </p>
 
 ## Welcome, Watcher! 👋
