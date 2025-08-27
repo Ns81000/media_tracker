@@ -229,6 +229,29 @@
 
 
     <script>
+    // --- IMAGE PATH HANDLING ---
+    // Function to ensure all image paths are properly formatted - same as in M&S&G.html
+    function getImagePath(imageName) {
+        if (!imageName) return '';
+        
+        // If the path already includes 'images/', return as is
+        if (imageName.startsWith('images/')) return imageName;
+        
+        // Handle special case for The Raid Redemption which is actually a .jpg file
+        if (imageName === 'The Raid Redemption (2011).jpg') {
+            return 'images/' + imageName;
+        }
+        
+        // Most of the images in the directory are .png format
+        // If the name has .jpg extension, convert it to .png
+        let path = 'images/' + imageName;
+        if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
+            path = path.replace(/\.(jpg|jpeg)$/, '.png');
+        }
+        
+        return path;
+    }
+    
     // --- DATA AGGREGATION ---
     const allMediaData = [];
 
@@ -237,7 +260,12 @@
     Object.values(msgData).forEach(category => {
         const processItems = (items, catName) => {
             if (items) {
-                items.forEach(item => allMediaData.push({ ...item, page: 'M&S&G.html', category: catName, image: `images/${item.image}` }));
+                items.forEach(item => allMediaData.push({ 
+                    ...item, 
+                    page: 'M&S&G.html', 
+                    category: catName, 
+                    image: getImagePath(item.image) // Using the getImagePath function to handle image paths correctly
+                }));
             }
         };
         processItems(category.items, category.name);
@@ -254,7 +282,7 @@
             title: `${item.title} - Season ${item.season}`,
             page: 'MCU_Netflix.html',
             category: 'The Defenders Saga',
-            image: `images/${item.title} - Season ${item.season}.png`
+            image: getImagePath(`${item.title} - Season ${item.season}.png`) // Using getImagePath for consistency
         });
     });
 
@@ -266,7 +294,7 @@
             title: `${item.title} - ${item.season}`,
             page: 'Star_Wars.html',
             category: 'Star Wars Animated & Spinoffs',
-            image: `${item.image}` // Corrected path
+            image: getImagePath(item.image) // Using getImagePath for consistency
         });
     });
 
@@ -279,7 +307,7 @@
                 ...item,
                 page: 'watcher.html',
                 category: franchise.name,
-                image: `images/${imageTitle}.png` // Corrected path
+                image: getImagePath(`${imageTitle}.png`) // Using getImagePath for consistency
             });
         });
     });
