@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCAU — The Soulful Watchlist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0908;
+    --bg2: #111009;
+    --surface: #161410;
+    --border: rgba(255,220,140,0.10);
+    --gold: #e8c16a;
+    --gold-dim: rgba(232,193,106,0.18);
+    --gold-glow: rgba(232,193,106,0.06);
+    --red: #c94040;
+    --red-dim: rgba(201,64,64,0.15);
+    --teal: #4ab8a0;
+    --teal-dim: rgba(74,184,160,0.12);
+    --amber: #d4883a;
+    --amber-dim: rgba(212,136,58,0.12);
+    --text: #f0e8d5;
+    --text-muted: #8a7f6a;
+    --text-dim: #5a5244;
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-mono: 'DM Mono', monospace;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.45;
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    padding: 100px 48px 80px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; left: -120px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(232,193,106,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: 'DC';
+    position: absolute;
+    right: -30px; top: -40px;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(180px, 22vw, 320px);
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(232,193,106,0.06);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.8;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 32px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.5;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(42px, 7vw, 88px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    max-width: 700px;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-subtitle {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    margin-top: 28px;
+    margin-bottom: 6px;
+  }
+
+  .hero-desc {
+    font-size: 15px;
+    color: var(--text-muted);
+    max-width: 480px;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .hero-actions {
+    margin-top: 24px;
+  }
+
+  .hub-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-decoration: none;
+    border: 1px solid rgba(232,193,106,0.36);
+    padding: 10px 14px;
+    background: rgba(232,193,106,0.05);
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+
+  .hub-button:hover {
+    border-color: var(--gold);
+    background: rgba(232,193,106,0.12);
+    color: #f7de9d;
+    transform: translateY(-1px);
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    padding: 20px 36px;
+    border-right: 1px solid var(--border);
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* Timeline */
+  .timeline-container {
+    padding: 0 48px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .strand-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 52px 0 28px;
+  }
+
+  .strand-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .strand-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  /* Card grid */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2px;
+  }
+
+  .card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px 28px 24px;
+    cursor: default;
+    transition: border-color 0.3s, background 0.3s, transform 0.2s;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.20s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+  .card:nth-child(6) { animation-delay: 0.30s; }
+  .card:nth-child(7) { animation-delay: 0.35s; }
+  .card:nth-child(8) { animation-delay: 0.40s; }
+  .card:nth-child(9) { animation-delay: 0.45s; }
+
+  .card:hover {
+    border-color: rgba(232,193,106,0.28);
+    background: #1a1712;
+    transform: translateY(-2px);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  /* Accent colours per strand */
+  .card.strand-batman::before { background: var(--gold); }
+  .card.strand-superman::before { background: var(--teal); }
+  .card.strand-league::before { background: var(--teal); }
+  .card.strand-film::before { background: var(--red); }
+  .card.strand-expanded::before { background: var(--amber); }
+
+  .card-number {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-badge {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  .badge-batman  { background: var(--gold-dim);  color: var(--gold); }
+  .badge-superman{ background: var(--teal-dim);  color: var(--teal); }
+  .badge-film    { background: var(--red-dim);   color: #e06060; }
+  .badge-expanded{ background: var(--amber-dim); color: var(--amber); }
+  .badge-league  { background: var(--teal-dim);  color: var(--teal); }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .card-years {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  .card-note {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* Essential flag */
+  .card.essential {
+    background: #141210;
+  }
+
+  .essential-flag {
+    position: absolute;
+    top: 0; right: 0;
+    background: var(--gold);
+    color: #0a0908;
+    font-family: var(--font-mono);
+    font-size: 7px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+  }
+
+  /* Glow on essential cards */
+  .card.essential::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top right, rgba(232,193,106,0.04), transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Interlude notes */
+  .interlude {
+    padding: 24px 28px;
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--gold);
+    margin: 2px 0;
+    background: var(--gold-glow);
+  }
+
+  .interlude-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+
+  .interlude-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* Order guide section */
+  .order-section {
+    padding: 60px 48px;
+    border-top: 1px solid var(--border);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .order-section h2 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .order-section h2 em { color: var(--gold); font-style: italic; }
+
+  .order-intro {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 36px;
+    max-width: 520px;
+  }
+
+  .order-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .order-step {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 0 24px;
+    align-items: start;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .order-step:last-child { border-bottom: none; }
+
+  .order-num {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--text-dim);
+    line-height: 1;
+    padding-top: 4px;
+    text-align: right;
+    transition: color 0.2s;
+  }
+
+  .order-step:hover .order-num { color: var(--gold); }
+
+  .order-content {}
+
+  .order-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .order-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  footer p {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+
+  footer span { color: var(--gold); }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 18px 48px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+
+  .legend-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-right: 6px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px; border-radius: 1px;
+  }
+
+  .dot-batman  { background: var(--gold); }
+  .dot-superman{ background: var(--teal); }
+  .dot-film    { background: var(--red); }
+  .dot-expanded{ background: var(--amber); }
+
+  /* Responsive */
+  @media (max-width: 680px) {
+    .hero { padding: 64px 24px 52px; }
+    .hero::after { font-size: 120px; right: -20px; top: -20px; }
+    .hub-button { width: 100%; justify-content: center; }
+    .timeline-container { padding: 0 24px 60px; }
+    .order-section { padding: 48px 24px; }
+    .legend { padding: 16px 24px; gap: 12px; }
+    footer { padding: 24px 24px; }
+    .stat { padding: 16px 20px; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 900px) {
+    .card-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="hero-eyebrow">DC Animated Universe · 1992–2006</div>
+  <h1 class="hero-title">The <em>Soulful</em><br>Watchlist</h1>
+  <p class="hero-subtitle">// curated · story-driven · no filler</p>
+  <p class="hero-desc">Everything that remains after cutting the hollow, the promotional, and the purely mechanical. Arranged in release order, because that's the order the universe was meant to breathe.</p>
+  <div class="hero-actions">
+    <a class="hub-button" href="index.html" aria-label="Back to Media Universe Hub">&larr; Back to Hub</a>
+  </div>
+</header>
+
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-num">9</div>
+    <div class="stat-label">Essential titles</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">14</div>
+    <div class="stat-label">Years of story</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">3</div>
+    <div class="stat-label">Films included</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">0</div>
+    <div class="stat-label">Filler tolerated</div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <span class="legend-label">Strand ↗</span>
+  <div class="legend-item"><span class="legend-dot dot-batman"></span>Batman</div>
+  <div class="legend-item"><span class="legend-dot dot-superman"></span>Superman / League</div>
+  <div class="legend-item"><span class="legend-dot dot-film"></span>Film</div>
+  <div class="legend-item"><span class="legend-dot dot-expanded"></span>Expanded</div>
+</div>
+
+<!-- Main Timeline -->
+<main class="timeline-container">
+
+  <!-- Batman Strand: Foundations -->
+  <div class="strand-header">
+    <div class="strand-line"></div>
+    <div class="strand-label">I · The Foundation (1992–1995)</div>
+    <div class="strand-line"></div>
+  </div>
+
+  <div class="card-grid">
+
+    <div class="card strand-batman essential" style="animation-delay:0.05s">
+      <span class="essential-flag">Essential</span>
+      <div class="card-number">01 <span class="card-badge badge-batman">Batman</span></div>
+      <div class="card-title">Batman: The Animated Series</div>
+      <div class="card-years">1992 – 1995 · 85 episodes · Fox Kids</div>
+      <div class="card-desc">The foundation and one of the greatest animated works ever produced. Treats its villains as broken humans. Noir shadows, jazz score, genuine tragedy. Nothing that follows exists without it.</div>
+      <div class="card-note">▸ Start here, no exceptions. All 85 episodes.</div>
+    </div>
+
+    <div class="card strand-film essential" style="animation-delay:0.10s">
+      <span class="essential-flag">Essential</span>
+      <div class="card-number">02 <span class="card-badge badge-film">Film</span></div>
+      <div class="card-title">Batman: Mask of the Phantasm</div>
+      <div class="card-years">1993 · Theatrical feature</div>
+      <div class="card-desc">The crown jewel. A theatrical film that takes Bruce Wayne's psychology — his grief, his impossible promise, his self-exile from love — more seriously than most live-action Batman ever has.</div>
+      <div class="card-note">▸ Watch after BTAS Season 1. The best DCAU has to offer.</div>
+    </div>
+
+  </div>
+
+  <!-- Interlude -->
+  <div class="interlude">
+    <div class="interlude-label">Crossover note</div>
+    <div class="interlude-text">The Superman and Batman series run in parallel from 1996–1999 and share crossover episodes: "World's Finest" (3-part), "Knight Time", "Girl's Night Out". Interleave by air date if you want them to land as intended, or watch each series sequentially — both work.</div>
+  </div>
+
+  <!-- The Parallel Era -->
+  <div class="strand-header">
+    <div class="strand-line"></div>
+    <div class="strand-label">II · The Parallel Era (1996–2000)</div>
+    <div class="strand-line"></div>
+  </div>
+
+  <div class="card-grid">
+
+    <div class="card strand-superman" style="animation-delay:0.05s">
+      <div class="card-number">03 <span class="card-badge badge-superman">Superman</span></div>
+      <div class="card-title">Superman: The Animated Series</div>
+      <div class="card-years">1996 – 2000 · 54 episodes · Kids' WB</div>
+      <div class="card-desc">Starts slow, becomes genuinely great. The Darkseid arc and Brainiac episodes are soul-level television. Clark Kent's warmth is a counterweight to Bruce's darkness — and the universe needs both.</div>
+      <div class="card-note">▸ Slow burn — push past s1. The Darkseid episodes reward patience.</div>
+    </div>
+
+    <div class="card strand-batman" style="animation-delay:0.10s">
+      <div class="card-number">04 <span class="card-badge badge-batman">Batman</span></div>
+      <div class="card-title">The New Batman Adventures</div>
+      <div class="card-years">1997 – 1999 · 24 episodes · Kids' WB</div>
+      <div class="card-desc">Darker, tighter, leaner. A revamped art style strips everything to essentials. Contains some of the most unsettling and emotionally honest episodes in the entire DCAU. Not a downgrade — a distillation.</div>
+      <div class="card-note">▸ Run parallel with STAS. "Legends of the Dark Knight" is unmissable.</div>
+    </div>
+
+    <div class="card strand-film" style="animation-delay:0.15s">
+      <div class="card-number">05 <span class="card-badge badge-film">Film</span></div>
+      <div class="card-title">Batman &amp; Mr. Freeze: SubZero</div>
+      <div class="card-years">1998 · Direct-to-video feature</div>
+      <div class="card-desc">A lean, emotionally honest continuation of the Freeze arc. Victor Fries remains one of the most tragic figures in the DCAU — a monster made by grief, not malice. Short and deeply worthwhile.</div>
+      <div class="card-note">▸ Watch before Batman Beyond. Completes the Freeze arc.</div>
+    </div>
+
+  </div>
+
+  <!-- The Legacy Era -->
+  <div class="strand-header">
+    <div class="strand-line"></div>
+    <div class="strand-label">III · Legacy (1999–2004)</div>
+    <div class="strand-line"></div>
+  </div>
+
+  <div class="card-grid">
+
+    <div class="card strand-batman essential" style="animation-delay:0.05s">
+      <span class="essential-flag">Essential</span>
+      <div class="card-number">06 <span class="card-badge badge-batman">Batman</span></div>
+      <div class="card-title">Batman Beyond</div>
+      <div class="card-years">1999 – 2001 · 52 episodes · Kids' WB</div>
+      <div class="card-desc">The bold swing: replace the hero entirely. Ask what legacy, grief, and identity mean across generations. Bruce Wayne as a broken, bitter old man passing something on — not proudly, but out of necessity. One of the most emotionally complex things in the DCAU.</div>
+      <div class="card-note">▸ All 3 seasons. The series builds; don't stop at s1.</div>
+    </div>
+
+    <div class="card strand-film essential" style="animation-delay:0.10s">
+      <span class="essential-flag">Essential</span>
+      <div class="card-number">07 <span class="card-badge badge-film">Film</span></div>
+      <div class="card-title">Batman Beyond: Return of the Joker</div>
+      <div class="card-years">2000 · Direct-to-video · Uncut version</div>
+      <div class="card-desc">The emotional culmination of Batman Beyond and arguably the most mature, psychologically disturbing thing the DCAU ever produced. A meditation on trauma, legacy, and what the Joker represents when he shouldn't exist anymore. Deeply earned.</div>
+      <div class="card-note">▸ Uncut version only. The edited cut removes everything that matters.</div>
+    </div>
+
+    <div class="card strand-expanded" style="animation-delay:0.15s">
+      <div class="card-number">08 <span class="card-badge badge-expanded">Expanded</span></div>
+      <div class="card-title">Static Shock</div>
+      <div class="card-years">2000 – 2004 · 52 episodes · Kids' WB</div>
+      <div class="card-desc">The one people underestimate. From season two onward, genuinely invested in the experience of a Black teenager navigating power, community, racism, and injustice. A necessary tonal counterweight — human warmth the prestige shows sometimes forget. First African-American superhero to lead his own animated series.</div>
+      <div class="card-note">▸ Season 1 is kids' TV. Season 2 onward is something else. Hold on.</div>
+    </div>
+
+  </div>
+
+  <!-- The Convergence -->
+  <div class="strand-header">
+    <div class="strand-line"></div>
+    <div class="strand-label">IV · Convergence (2001–2006)</div>
+    <div class="strand-line"></div>
+  </div>
+
+  <div class="card-grid">
+
+    <div class="card strand-league essential" style="animation-delay:0.05s">
+      <span class="essential-flag">Essential</span>
+      <div class="card-number">09 <span class="card-badge badge-league">League</span></div>
+      <div class="card-title">Justice League</div>
+      <div class="card-years">2001 – 2004 · 52 episodes · Cartoon Network</div>
+      <div class="card-desc">Where everything converges. Found-family dynamics assembled with real care. The John Stewart / Hawkgirl relationship is one of the most genuinely felt romances in animated television. The moral stakes are adult. The banter is earned.</div>
+      <div class="card-note">▸ Run alongside Static Shock s2–s4 — they cross over and the contrast enriches both.</div>
+    </div>
+
+    <div class="card strand-league essential" style="animation-delay:0.10s">
+      <span class="essential-flag">Essential</span>
+      <div class="card-number">10 <span class="card-badge badge-league">League</span></div>
+      <div class="card-title">Justice League Unlimited</div>
+      <div class="card-years">2004 – 2006 · 39 episodes · Cartoon Network</div>
+      <div class="card-desc">The culmination of everything. It expands the roster without diluting the core. Delivers one of the most emotionally satisfying long-arc endings in animated television history. A series that trusted its audience. The finale earns every frame.</div>
+      <div class="card-note">▸ All 3 seasons. The finale is as good as television gets at this scale.</div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- Watch Order Guide -->
+<section class="order-section">
+  <h2>The <em>Right</em> Order</h2>
+  <p class="order-intro">Release order is usually the correct order. Here's how to think about the overlapping strands so nothing feels out of sequence.</p>
+  <div class="order-timeline">
+    <div class="order-step">
+      <div class="order-num">01</div>
+      <div class="order-content">
+        <div class="order-title">Batman: TAS → Mask of the Phantasm</div>
+        <div class="order-note">Watch the film after Season 1 of BTAS. Then finish the remaining BTAS episodes. This is where everything begins.</div>
+      </div>
+    </div>
+    <div class="order-step">
+      <div class="order-num">02</div>
+      <div class="order-content">
+        <div class="order-title">Superman: TAS ↔ New Batman Adventures (interleaved)</div>
+        <div class="order-note">These two series run simultaneously and cross over directly. For the crossovers to land — especially "World's Finest" — interleave them by air date or watch each fully then the other; both approaches work.</div>
+      </div>
+    </div>
+    <div class="order-step">
+      <div class="order-num">03</div>
+      <div class="order-content">
+        <div class="order-title">SubZero → Batman Beyond → Return of the Joker</div>
+        <div class="order-note">Watch SubZero before Beyond begins. Finish all three seasons of Beyond, then watch Return of the Joker — the uncut version. This is a complete emotional arc.</div>
+      </div>
+    </div>
+    <div class="order-step">
+      <div class="order-num">04</div>
+      <div class="order-content">
+        <div class="order-title">Static Shock (from s2) ↔ Justice League (simultaneous)</div>
+        <div class="order-note">Static Shock season 1 can be skipped or sampled lightly. From season 2, run it alongside Justice League — they air and cross over in the same period, and the tonal contrast is part of the point.</div>
+      </div>
+    </div>
+    <div class="order-step">
+      <div class="order-num">05</div>
+      <div class="order-content">
+        <div class="order-title">Justice League → Justice League Unlimited</div>
+        <div class="order-note">Watch all of Justice League, then move directly into JLU. The finale of JLU is the finale of the entire DCAU. Let it land without interruption.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>DC Animated Universe · <span>1992–2006</span> · Warner Bros. Animation</p>
+  <p>Curated by: story, soul, and a zero-tolerance policy for <span>filler</span>.</p>
+</footer>
+
+</body>
+</html>
