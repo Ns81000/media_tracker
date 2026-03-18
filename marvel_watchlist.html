@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marvel Soulful Watchlist | 565 Episodes of Pure Soul</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --marvel-red: #ed1d24;
+            --marvel-dark: #151515;
+            --marvel-gray: #2c2c2c;
+            --marvel-light: #f5f5f5;
+            --accent-blue: #1e90ff;
+            --accent-purple: #9370db;
+            --accent-gold: #ffd700;
+            --success-green: #00ff00;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--marvel-dark) 0%, var(--marvel-gray) 100%);
+            color: var(--marvel-light);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--marvel-red) 0%, #b71c1c 100%);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.03) 10px,
+                rgba(255, 255, 255, 0.03) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        h1 {
+            font-size: 3em;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.95;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 25px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary {
+            background: var(--marvel-red);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-tertiary {
+            background: var(--accent-purple);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn.active {
+            background: var(--accent-gold);
+            color: var(--marvel-dark);
+        }
+
+        /* Back Button */
+        .back-to-tracker {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: var(--marvel-gray);
+            color: var(--accent-blue);
+            border: 1px solid rgba(30, 144, 255, 0.3);
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .back-to-tracker:hover {
+            background: rgba(30, 144, 255, 0.1);
+            border-color: var(--accent-blue);
+            transform: translateX(-3px);
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            background: var(--marvel-gray);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 30px;
+            background: var(--marvel-dark);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--marvel-red) 0%, var(--accent-gold) 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        /* Category Section */
+        .category {
+            margin-bottom: 40px;
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, var(--marvel-gray) 0%, #1a1a1a 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .category-header:hover {
+            transform: translateX(5px);
+            background: linear-gradient(135deg, #2c2c2c 0%, #1f1f1f 100%);
+        }
+
+        .category-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .category-info {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+            align-items: center;
+        }
+
+        .badge {
+            background: var(--marvel-red);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* Show Cards */
+        .shows-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .show-card {
+            background: var(--marvel-gray);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--marvel-red);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .show-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(237, 29, 36, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .show-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(237, 29, 36, 0.3);
+            border-left-width: 8px;
+        }
+
+        .show-card:hover::before {
+            opacity: 1;
+        }
+
+        .show-card.watched {
+            opacity: 0.6;
+            border-left-color: var(--success-green);
+        }
+
+        .show-card.watched .show-title::after {
+            content: '✓ WATCHED';
+            display: block;
+            font-size: 0.7em;
+            color: var(--success-green);
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .show-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+            position: relative;
+            z-index: 1;
+        }
+
+        .show-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9em;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .meta-icon {
+            font-size: 1.1em;
+        }
+
+        .show-description {
+            font-size: 0.95em;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .watch-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: var(--marvel-red);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .watch-btn:hover {
+            background: #c41e24;
+            transform: scale(1.02);
+        }
+
+        .watch-btn.watched {
+            background: var(--success-green);
+            color: var(--marvel-dark);
+        }
+
+        /* Timeline View */
+        .timeline {
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--marvel-red) 0%, var(--accent-gold) 100%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -38px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: var(--marvel-red);
+            border: 4px solid var(--marvel-dark);
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px var(--marvel-gray);
+        }
+
+        .timeline-item.watched::before {
+            background: var(--success-green);
+        }
+
+        .timeline-year {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+        }
+
+        /* Info Panels */
+        .info-panel {
+            background: var(--marvel-gray);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border-left: 6px solid var(--accent-blue);
+        }
+
+        .info-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-content {
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .info-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-content li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .info-content li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: var(--marvel-red);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            border-top: 2px solid var(--marvel-red);
+            opacity: 0.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1em;
+            }
+
+            .stats {
+                gap: 15px;
+            }
+
+            .stat-box {
+                padding: 10px 15px;
+            }
+
+            .stat-number {
+                font-size: 1.5em;
+            }
+
+            .shows-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                padding-left: 30px;
+            }
+
+            .timeline::before {
+                left: 10px;
+            }
+
+            .timeline-item::before {
+                left: -28px;
+            }
+
+            .category-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none;
+        }
+
+        /* Collapse */
+        .collapsed {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .expanded {
+            max-height: 10000px;
+            transition: max-height 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 Marvel Soulful Watchlist</h1>
+            <p class="subtitle">Your Curated Journey Through 565 Episodes of Pure Soul</p>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number">565</div>
+                    <div class="stat-label">Episodes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">~308</div>
+                    <div class="stat-label">Hours</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">19</div>
+                    <div class="stat-label">Shows</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="watchedCount">0</div>
+                    <div class="stat-label">Watched</div>
+                </div>
+            </div>
+            <a href="index.html" class="back-to-tracker">&larr; Back to Hub</a>
+        </header>
+
+        <!-- Progress Tracker -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <h3>📊 Your Progress</h3>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%">
+                    <span id="progressText">0 / 565</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel">
+            <div class="info-title">🎯 Why This Watchlist?</div>
+            <div class="info-content">
+                <p><strong>This is your soulful, story-driven Marvel journey.</strong> Every show here has:</p>
+                <ul>
+                    <li>Genuine creative ambition and emotional weight</li>
+                    <li>Character depth, moral complexity, and found family themes</li>
+                    <li>Real narrative stakes — no marketing fluff or kids' content</li>
+                    <li>Storytelling that respects your time and intelligence</li>
+                </ul>
+                <p style="margin-top: 15px;"><strong>You're skipping 800+ hours</strong> of hollow franchise padding, corporate filler, and soulless content. This is the good stuff.</p>
+            </div>
+        </div>
+
+        <!-- View Controls -->
+        <div class="controls">
+            <button class="btn btn-primary active" onclick="switchView('release')" id="btnRelease">📅 Release Date Order</button>
+            <button class="btn btn-secondary" onclick="switchView('suggested')" id="btnSuggested">⭐ Suggested Order</button>
+            <button class="btn btn-tertiary" onclick="switchView('category')" id="btnCategory">📂 By Category</button>
+        </div>
+
+        <!-- Release Date View -->
+        <div id="releaseView" class="view-container">
+            <div class="category">
+                <div class="category-header" onclick="toggleCategory('release90s')">
+                    <h2 class="category-title">🎨 The 90s Animation Era</h2>
+                    <div class="category-info">
+                        <span class="badge">239 episodes</span>
+                        <span>1992-1998</span>
+                    </div>
+                </div>
+                <div id="release90s" class="shows-grid expanded">
+                    <div class="show-card" data-episodes="76">
+                        <h3 class="show-title">X-Men: The Animated Series</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 1992-1997</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 76 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~38 hrs</span>
+                        </div>
+                        <p class="show-description">The foundation. Ambitious serialization with real themes of prejudice, identity, and sacrifice. Emotional complexity that defined a generation.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="26">
+                        <h3 class="show-title">Iron Man</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 1994-1996</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 26 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~13 hrs</span>
+                        </div>
+                        <p class="show-description">Surprisingly dark serialized storytelling about corporate corruption and redemption. Adult themes wrapped in animation.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="65">
+                        <h3 class="show-title">Spider-Man: The Animated Series</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 1994-1998</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 65 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~32 hrs</span>
+                        </div>
+                        <p class="show-description">Ambitious, serialized, emotionally complex. The Clone Saga and symbiote arcs carry real emotional weight and character consequences.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header" onclick="toggleCategory('release2000s')">
+                    <h2 class="category-title">🔄 The 2000s Evolution</h2>
+                    <div class="category-info">
+                        <span class="badge">156 episodes</span>
+                        <span>2000-2012</span>
+                    </div>
+                </div>
+                <div id="release2000s" class="shows-grid expanded">
+                    <div class="show-card" data-episodes="52">
+                        <h3 class="show-title">X-Men: Evolution</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 2000-2003</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 52 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~26 hrs</span>
+                        </div>
+                        <p class="show-description">High school X-Men that builds to genuine character depth. Explores identity and belonging with unexpected emotional resonance.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="26">
+                        <h3 class="show-title">The Spectacular Spider-Man</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 2008-2009</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 26 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~13 hrs</span>
+                        </div>
+                        <p class="show-description">🌟 BEST SPIDER-MAN EVER. Character-driven perfection balancing Peter's life and heroics. Morally complex, canceled too soon.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="26">
+                        <h3 class="show-title">Wolverine and the X-Men</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 2009</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 26 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~13 hrs</span>
+                        </div>
+                        <p class="show-description">Wolverine leads after Professor X disappears. Surprisingly strong character work and found family dynamics.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="52">
+                        <h3 class="show-title">Iron Man: Armored Adventures</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 2009-2012</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 52 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~26 hrs</span>
+                        </div>
+                        <p class="show-description">Teen Tony Stark reimagining. Deeper than expected, exploring legacy, responsibility, and friendship with real stakes.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header" onclick="toggleCategory('release2010s')">
+                    <h2 class="category-title">⚡ The 2010s Peak Era</h2>
+                    <div class="category-info">
+                        <span class="badge">52 episodes</span>
+                        <span>2010-2012</span>
+                    </div>
+                </div>
+                <div id="release2010s" class="shows-grid expanded">
+                    <div class="show-card" data-episodes="52">
+                        <h3 class="show-title">The Avengers: Earth's Mightiest Heroes</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 2010-2012</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 52 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~26 hrs</span>
+                        </div>
+                        <p class="show-description">Well-crafted team dynamics and serialized storytelling about building trust. Traditional but executed with real care.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header" onclick="toggleCategory('releaseLive')">
+                    <h2 class="category-title">🎭 Live-Action Masterpieces</h2>
+                    <div class="category-info">
+                        <span class="badge">108 episodes</span>
+                        <span>2015-2019</span>
+                    </div>
+                </div>
+                <div id="releaseLive" class="shows-grid expanded">
+                    <div class="show-card" data-episodes="8">
+                        <h3 class="show-title">Agent Carter (Season 1)</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> Jan 2015</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 8 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~6 hrs</span>
+                        </div>
+                        <p class="show-description">Charming period spy drama. Peggy Carter post-WWII. Light but well-crafted. (Skip Season 2)</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="13">
+                        <h3 class="show-title">Daredevil (Season 2)</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> Mar 2016</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 13 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~10 hrs</span>
+                        </div>
+                        <p class="show-description">The Punisher arc (eps 1-4) is phenomenal character work exploring justice vs. vengeance. Frank Castle's introduction is pure soul.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="29">
+                        <h3 class="show-title">The Gifted</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 2017-2019</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 29 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~22 hrs</span>
+                        </div>
+                        <p class="show-description">Family drama with real stakes. Found family themes and moral complexity about mutant rights. Emotionally grounded X-Men.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="27">
+                        <h3 class="show-title">Legion</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 2017-2019</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 27 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~20 hrs</span>
+                        </div>
+                        <p class="show-description">🌟 MASTERPIECE. Noah Hawley's surreal, psychological brilliance. Visually stunning, emotionally complex, deeply challenging. Not MCU.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="13">
+                        <h3 class="show-title">The Punisher (Season 1)</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> Nov 2017</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 13 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~10 hrs</span>
+                        </div>
+                        <p class="show-description">Grief, PTSD, veteran trauma study. Barely a "superhero show" — it's about a broken man seeking purpose. Brutal and human.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="13">
+                        <h3 class="show-title">Daredevil (Season 3)</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> Oct 2018</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 13 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~10 hrs</span>
+                        </div>
+                        <p class="show-description">🌟 PEAK NETFLIX MARVEL. Matt broken, Kingpin's psychological warfare, identity crisis. Moral complexity at its finest.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="13">
+                        <h3 class="show-title">The Punisher (Season 2)</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> Jan 2019</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 13 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~10 hrs</span>
+                        </div>
+                        <p class="show-description">More uneven but still explores moral complexity and the cost of violence. Optional if you want more Frank.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header" onclick="toggleCategory('releaseModern')">
+                    <h2 class="category-title">🔥 Modern Era</h2>
+                    <div class="category-info">
+                        <span class="badge">88 episodes</span>
+                        <span>2017-2024</span>
+                    </div>
+                </div>
+                <div id="releaseModern" class="shows-grid expanded">
+                    <div class="show-card" data-episodes="58">
+                        <h3 class="show-title">Marvel's Spider-Man</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 2017-2020</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 58 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~29 hrs</span>
+                        </div>
+                        <p class="show-description">Post-Ultimate Spider-Man, more grounded. Better character work, less jokey, serialized arcs with emotional payoff.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="10">
+                        <h3 class="show-title">M.O.D.O.K.</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 2021</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 10 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~4 hrs</span>
+                        </div>
+                        <p class="show-description">🎭 Adult animated tragicomic genius. Supervillain going through divorce. Genuinely funny AND sad. Underrated gem.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="20">
+                        <h3 class="show-title">Hit-Monkey</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 2021-2024</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 20 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~8 hrs</span>
+                        </div>
+                        <p class="show-description">🎭 Darkly funny revenge story with genuine heart. Violent, weird, surprisingly emotional about grief and purpose.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="10">
+                        <h3 class="show-title">X-Men '97</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📅</span> 2024</span>
+                            <span class="meta-item"><span class="meta-icon">📺</span> 10 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~5 hrs</span>
+                        </div>
+                        <p class="show-description">🌟 Soulful continuation with mature themes and character payoffs. Emotional weight and respect for what came before.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suggested View -->
+        <div id="suggestedView" class="view-container hidden">
+            <div class="timeline">
+                <div class="timeline-item" data-episodes="26">
+                    <div class="timeline-year">1. START HERE</div>
+                    <div class="show-card">
+                        <h3 class="show-title">The Spectacular Spider-Man</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 26 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~13 hrs</span>
+                        </div>
+                        <p class="show-description">Perfect gateway. Immediate satisfaction, perfect craft. Shows you what soulful superhero TV looks like.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-episodes="26">
+                    <div class="timeline-year">2. CONTINUE THE INTENSITY</div>
+                    <div class="show-card">
+                        <h3 class="show-title">Daredevil Season 2 & 3</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 26 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~20 hrs</span>
+                        </div>
+                        <p class="show-description">Finish what you started. S2 for Punisher, S3 for peak Netflix Marvel. Dark, morally complex, character-driven.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-episodes="13">
+                    <div class="timeline-year">3. THE PUNISHER</div>
+                    <div class="show-card">
+                        <h3 class="show-title">The Punisher Season 1</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 13 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~10 hrs</span>
+                        </div>
+                        <p class="show-description">Follow Frank's story. Grief, trauma, and what it costs to be violent. Essential character study.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-episodes="27">
+                    <div class="timeline-year">4. CHALLENGE YOURSELF</div>
+                    <div class="show-card">
+                        <h3 class="show-title">Legion</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 27 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~20 hrs</span>
+                        </div>
+                        <p class="show-description">The artistic masterpiece. Surreal, psychological, visually stunning. Will challenge and reward you deeply.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-episodes="86">
+                    <div class="timeline-year">5. THE EPIC SAGA</div>
+                    <div class="show-card">
+                        <h3 class="show-title">X-Men: The Animated Series + X-Men '97</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 86 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~43 hrs</span>
+                        </div>
+                        <p class="show-description">The foundation and its continuation. Ambitious storytelling, real themes, emotional complexity. The X-Men saga.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-episodes="29">
+                    <div class="timeline-year">6. GROUNDED X-MEN</div>
+                    <div class="show-card">
+                        <h3 class="show-title">The Gifted</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 29 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~22 hrs</span>
+                        </div>
+                        <p class="show-description">Emotional live-action continuation. Family, stakes, moral complexity. Underrated gem.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-episodes="20">
+                    <div class="timeline-year">7. DARK PALATE CLEANSER</div>
+                    <div class="show-card">
+                        <h3 class="show-title">Hit-Monkey</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 20 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~8 hrs</span>
+                        </div>
+                        <p class="show-description">Violently funny, surprisingly heartfelt. A tonal shift that refreshes your palate.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-episodes="65">
+                    <div class="timeline-year">8. MORE SPIDER-MAN DEPTH</div>
+                    <div class="show-card">
+                        <h3 class="show-title">Spider-Man: The Animated Series</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 65 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~32 hrs</span>
+                        </div>
+                        <p class="show-description">If you loved Spectacular, here's more ambitious Spider-Man storytelling from the '90s.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-episodes="10">
+                    <div class="timeline-year">9. TRAGICOMIC GEM</div>
+                    <div class="show-card">
+                        <h3 class="show-title">M.O.D.O.K.</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 10 eps</span>
+                            <span class="meta-item"><span class="meta-icon">⏱️</span> ~4 hrs</span>
+                        </div>
+                        <p class="show-description">Funny and sad in equal measure. Supervillain family drama that hits different.</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-episodes="180">
+                    <div class="timeline-year">10. FILL IN THE GAPS</div>
+                    <div class="show-card">
+                        <h3 class="show-title">Everything Else</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> Remaining shows</span>
+                        </div>
+                        <p class="show-description">Iron Man: Armored Adventures, Avengers: Earth's Mightiest Heroes, X-Men: Evolution, Wolverine and the X-Men, Marvel's Spider-Man, The Punisher S2, Agent Carter S1</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category View -->
+        <div id="categoryView" class="view-container hidden">
+            <div class="category">
+                <div class="category-header" onclick="toggleCategory('catLive')">
+                    <h2 class="category-title">🎭 Live-Action</h2>
+                    <div class="category-info">
+                        <span class="badge">116 episodes</span>
+                        <span>~86 hours</span>
+                    </div>
+                </div>
+                <div id="catLive" class="shows-grid expanded">
+                    <div class="show-card" data-episodes="27">
+                        <h3 class="show-title">Legion</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 27 eps</span>
+                        </div>
+                        <p class="show-description">Psychological masterpiece</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="29">
+                        <h3 class="show-title">The Gifted</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 29 eps</span>
+                        </div>
+                        <p class="show-description">Family drama with stakes</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="13">
+                        <h3 class="show-title">Daredevil Season 2</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 13 eps</span>
+                        </div>
+                        <p class="show-description">Punisher introduction</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="13">
+                        <h3 class="show-title">Daredevil Season 3</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 13 eps</span>
+                        </div>
+                        <p class="show-description">Peak Netflix Marvel</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="13">
+                        <h3 class="show-title">The Punisher Season 1</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 13 eps</span>
+                        </div>
+                        <p class="show-description">Trauma study</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="13">
+                        <h3 class="show-title">The Punisher Season 2</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 13 eps</span>
+                        </div>
+                        <p class="show-description">More Frank (optional)</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="8">
+                        <h3 class="show-title">Agent Carter Season 1</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 8 eps</span>
+                        </div>
+                        <p class="show-description">Period spy drama</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header" onclick="toggleCategory('catAnimClassic')">
+                    <h2 class="category-title">🎨 Animated Classics</h2>
+                    <div class="category-info">
+                        <span class="badge">419 episodes</span>
+                        <span>~210 hours</span>
+                    </div>
+                </div>
+                <div id="catAnimClassic" class="shows-grid expanded">
+                    <div class="show-card" data-episodes="76">
+                        <h3 class="show-title">X-Men: The Animated Series</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 76 eps</span>
+                        </div>
+                        <p class="show-description">The foundation</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="10">
+                        <h3 class="show-title">X-Men '97</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 10 eps</span>
+                        </div>
+                        <p class="show-description">Soulful continuation</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="26">
+                        <h3 class="show-title">Iron Man</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 26 eps</span>
+                        </div>
+                        <p class="show-description">Dark serialization</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="65">
+                        <h3 class="show-title">Spider-Man: The Animated Series</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 65 eps</span>
+                        </div>
+                        <p class="show-description">Ambitious '90s Spider-Man</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="26">
+                        <h3 class="show-title">The Spectacular Spider-Man</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 26 eps</span>
+                        </div>
+                        <p class="show-description">Best Spider-Man ever</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="52">
+                        <h3 class="show-title">X-Men: Evolution</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 52 eps</span>
+                        </div>
+                        <p class="show-description">High school X-Men depth</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="26">
+                        <h3 class="show-title">Wolverine and the X-Men</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 26 eps</span>
+                        </div>
+                        <p class="show-description">Logan leads</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="52">
+                        <h3 class="show-title">Iron Man: Armored Adventures</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 52 eps</span>
+                        </div>
+                        <p class="show-description">Teen Tony depth</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="52">
+                        <h3 class="show-title">The Avengers: Earth's Mightiest Heroes</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 52 eps</span>
+                        </div>
+                        <p class="show-description">Team dynamics</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="58">
+                        <h3 class="show-title">Marvel's Spider-Man</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 58 eps</span>
+                        </div>
+                        <p class="show-description">Modern grounded Spider-Man</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header" onclick="toggleCategory('catMature')">
+                    <h2 class="category-title">🎭 Mature Animated</h2>
+                    <div class="category-info">
+                        <span class="badge">30 episodes</span>
+                        <span>~12 hours</span>
+                    </div>
+                </div>
+                <div id="catMature" class="shows-grid expanded">
+                    <div class="show-card" data-episodes="10">
+                        <h3 class="show-title">M.O.D.O.K.</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 10 eps</span>
+                        </div>
+                        <p class="show-description">Tragicomic genius</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                    <div class="show-card" data-episodes="20">
+                        <h3 class="show-title">Hit-Monkey</h3>
+                        <div class="show-meta">
+                            <span class="meta-item"><span class="meta-icon">📺</span> 20 eps</span>
+                        </div>
+                        <p class="show-description">Dark revenge with heart</p>
+                        <button class="watch-btn" onclick="toggleWatched(this)">Mark as Watched</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>🎬 Your soulful Marvel journey awaits. Skip the filler, embrace the soul.</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Made with ❤️ for story-driven viewers who value quality over quantity</p>
+        </footer>
+    </div>
+
+    <script>
+        // State management
+        let watchedShows = JSON.parse(localStorage.getItem('marvelWatchlist')) || [];
+        let totalEpisodes = 565;
+
+        // Initialize
+        updateProgress();
+
+        // View switching
+        function switchView(view) {
+            // Hide all views
+            document.getElementById('releaseView').classList.add('hidden');
+            document.getElementById('suggestedView').classList.add('hidden');
+            document.getElementById('categoryView').classList.add('hidden');
+
+            // Remove active from all buttons
+            document.querySelectorAll('.controls .btn').forEach(btn => btn.classList.remove('active'));
+
+            // Show selected view and activate button
+            if (view === 'release') {
+                document.getElementById('releaseView').classList.remove('hidden');
+                document.getElementById('btnRelease').classList.add('active');
+            } else if (view === 'suggested') {
+                document.getElementById('suggestedView').classList.remove('hidden');
+                document.getElementById('btnSuggested').classList.add('active');
+            } else if (view === 'category') {
+                document.getElementById('categoryView').classList.remove('hidden');
+                document.getElementById('btnCategory').classList.add('active');
+            }
+        }
+
+        // Toggle category collapse
+        function toggleCategory(id) {
+            const element = document.getElementById(id);
+            if (element.classList.contains('expanded')) {
+                element.classList.remove('expanded');
+                element.classList.add('collapsed');
+            } else {
+                element.classList.remove('collapsed');
+                element.classList.add('expanded');
+            }
+        }
+
+        // Toggle watched status
+        function toggleWatched(button) {
+            const card = button.closest('.show-card, .timeline-item');
+            const title = card.querySelector('.show-title').textContent.trim();
+            const episodes = parseInt(card.dataset.episodes) || 0;
+
+            if (card.classList.contains('watched')) {
+                card.classList.remove('watched');
+                button.classList.remove('watched');
+                button.textContent = 'Mark as Watched';
+                watchedShows = watchedShows.filter(show => show.title !== title);
+            } else {
+                card.classList.add('watched');
+                button.classList.add('watched');
+                button.textContent = '✓ Watched';
+                watchedShows.push({ title, episodes });
+            }
+
+            localStorage.setItem('marvelWatchlist', JSON.stringify(watchedShows));
+            updateProgress();
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const watchedEpisodes = watchedShows.reduce((sum, show) => sum + show.episodes, 0);
+            const percentage = Math.round((watchedEpisodes / totalEpisodes) * 100);
+
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `${watchedEpisodes} / ${totalEpisodes}`;
+            document.getElementById('progressPercent').textContent = percentage + '%';
+            document.getElementById('watchedCount').textContent = watchedShows.length;
+
+            // Restore watched states
+            watchedShows.forEach(show => {
+                document.querySelectorAll('.show-card, .timeline-item').forEach(card => {
+                    const cardTitle = card.querySelector('.show-title');
+                    if (cardTitle && cardTitle.textContent.trim() === show.title) {
+                        card.classList.add('watched');
+                        const btn = card.querySelector('.watch-btn');
+                        if (btn) {
+                            btn.classList.add('watched');
+                            btn.textContent = '✓ Watched';
+                        }
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
