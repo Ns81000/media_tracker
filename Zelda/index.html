@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Legend of Zelda — Complete Series Guide</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Modal styles (kept here to avoid file bloat) -->
+  <style>
+    #modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(10, 8, 4, 0.88);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #modal-overlay.open {
+      opacity: 1; pointer-events: all;
+    }
+    #modal-box {
+      background: linear-gradient(145deg, #2f2210 0%, #1a1208 100%);
+      border: 1px solid rgba(201,168,76,0.35);
+      border-radius: 16px;
+      max-width: 680px; width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+      padding: 32px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.8), 0 0 40px rgba(201,168,76,0.08);
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+    #modal-overlay.open #modal-box { transform: translateY(0); }
+    #modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      cursor: pointer;
+      color: var(--gold);
+      font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+      line-height: 1;
+    }
+    #modal-close:hover { background: rgba(201,168,76,0.2); }
+    #modal-box .detail-row {
+      display: grid; grid-template-columns: 130px 1fr;
+      gap: 8px; margin-bottom: 10px; align-items: baseline;
+    }
+    @media (max-width: 500px) {
+      #modal-box { padding: 20px 16px; }
+      #modal-box .detail-row { grid-template-columns: 1fr; gap: 2px; }
+    }
+
+    /* Spinoff section */
+    .spinoff-section {
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(201,168,76,0.2);
+    }
+    .spinoff-section h3 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(0.95rem, 2.5vw, 1.3rem);
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── HEADER ─── -->
+  <header id="site-header">
+    <div class="triforce-glyph" aria-hidden="true">
+      <svg viewBox="0 0 100 87" xmlns="http://www.w3.org/2000/svg" width="80" height="70">
+        <polygon points="50,3 72,41 28,41" fill="#f5c842"/>
+        <polygon points="6,85 28,47 50,85" fill="#f5c842"/>
+        <polygon points="72,47 94,85 50,85" fill="#f5c842"/>
+        <polygon points="50,41 61,61 39,61" fill="#0d0a05"/>
+      </svg>
+    </div>
+
+    <h1 class="site-title">The Legend of Zelda</h1>
+    <p class="site-subtitle">Complete Series Guide &nbsp;·&nbsp; Every Game &nbsp;·&nbsp; All Three Orders</p>
+    <a href="../index.html" class="back-link">&larr; Back to Hub</a>
+  </header>
+
+  <!-- ─── TAB NAV ─── -->
+  <nav id="tab-nav" aria-label="Section navigation">
+    <button class="tab-btn active" data-tab="visual">
+      ✦ Best Looking First
+    </button>
+    <button class="tab-btn" data-tab="release">
+      ✦ Release Order
+    </button>
+    <button class="tab-btn" data-tab="chrono">
+      ✦ Chronological Order
+    </button>
+  </nav>
+
+  <!-- ─── MAIN CONTENT ─── -->
+  <main id="main-content">
+
+    <!-- Section 1: Visual / Performance Order -->
+    <div id="section-visual" class="section-panel active">
+      <!-- Rendered by JS -->
+    </div>
+
+    <!-- Section 2: Release Order -->
+    <div id="section-release" class="section-panel">
+      <!-- Rendered by JS -->
+    </div>
+
+    <!-- Section 3: Chronological Order -->
+    <div id="section-chrono" class="section-panel">
+      <!-- Rendered by JS -->
+    </div>
+
+  </main>
+
+  <!-- ─── MODAL ─── -->
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-label="Game details">
+    <div id="modal-box">
+      <button id="modal-close" aria-label="Close">✕</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ─── SCRIPTS ─── -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
